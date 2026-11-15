@@ -24,7 +24,7 @@ export default function CorporativoAdmin() {
         <div className="space-y-3">
           {d.lista.map((c) => (
             <div key={c.id} className="cartao flex flex-col gap-4 p-4 sm:flex-row">
-              {c.logo && <img src={c.logo} alt="Logo" className="size-24 shrink-0 rounded-xl bg-white object-contain ring-1 ring-linho" />}
+              {c.logo && <img src={c.logo} alt="Logo" className="size-24 shrink-0 rounded-xl bg-white object-contain ring-1 ring-borda" />}
               <div className="flex-1 text-sm">
                 <p className="titulo text-lg">{c.empresa}</p>
                 <p className="text-cinza">

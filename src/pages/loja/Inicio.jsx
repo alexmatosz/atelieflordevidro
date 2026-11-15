@@ -1,22 +1,32 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Brush, Gift, Heart, Briefcase, Cake, Sparkles } from 'lucide-react'
 import { db } from '../../lib/db'
 import { useApp, useDados } from '../../lib/app'
-import { CATEGORIAS } from '../../lib/format'
+import { moeda } from '../../lib/format'
 import Peca from '../../components/Peca'
-import { CartaoModelo } from '../../components/ui'
+import { IconeWhats } from '../../components/Layout'
 
-const PERS_DEMO = { nome: 'Helena', frase: 'Para brindar a vida', data: '2026-05-10' }
+const BASE = import.meta.env.BASE_URL
+const PERS = { nome: 'Helena', frase: 'para brindar a vida', data: '2026-05-10' }
 
 const IDEIAS = [
-  { id: 'aniversario', nome: 'Aniversário', texto: 'Nome, data e a flor preferida.', icone: Cake },
-  { id: 'casamento', nome: 'Casamento', texto: 'Taças dos noivos e lembrancinhas.', icone: Heart },
-  { id: 'padrinhos', nome: 'Padrinhos', texto: 'Kits para convidar com carinho.', icone: Gift },
-  { id: 'corporativo', nome: 'Corporativo', texto: 'Brindes com o logo da empresa.', icone: Briefcase },
+  { para: '/presentes/maes', nome: 'Para a mãe' },
+  { para: '/presentes/aniversario', nome: 'Aniversário' },
+  { para: '/presentes/casamento', nome: 'Casamento' },
+  { para: '/presentes/padrinhos', nome: 'Padrinhos' },
+  { para: '/corporativo', nome: 'Empresas' },
 ]
 
+function Moldura({ modelo, arte, className = '', pers = PERS }) {
+  if (!modelo) return null
+  return (
+    <div className={`arco aspect-[4/5] overflow-hidden bg-petala ${className}`}>
+      <Peca modelo={modelo} desenho={arte?.desenho} pers={pers} className="size-full px-3 pb-1 pt-6" comSombra={false} ajustar />
+    </div>
+  )
+}
+
 export default function Inicio() {
-  const { config } = useApp()
+  const { config, categorias } = useApp()
   const [d] = useDados(async () => {
     const [modelos, artes, galeria, datas] = await Promise.all([
       db.listar('modelos', { filtro: { disponivel: true } }),
@@ -29,13 +39,13 @@ export default function Inicio() {
   const modelos = d?.modelos || []
   const artes = d?.artes || []
   const arte = (id) => artes.find((a) => a.id === id) || artes[0]
-  const modelo = (id) => modelos.find((m) => m.id === id) || modelos.find((m) => m.forma === id)
+  const modelo = (id, forma) => modelos.find((m) => m.id === id) || modelos.find((m) => m.forma === forma)
   const vitrine = [
-    { m: modelo('taca-bordeaux') || modelo('taca'), a: arte('floral-aquarela') },
-    { m: modelo('caneca-300') || modelo('caneca'), a: arte('nome-caligrafia') },
-    { m: modelo('garrafa-vidro') || modelo('garrafa'), a: arte('ramo-minimalista') },
-  ].filter((v) => v.m)
-  const maisVendidos = modelos.filter((m) => m.mais_vendido).slice(0, 4)
+    { m: modelo('taca-bordeaux', 'taca'), a: arte('girassois') },
+    { m: modelo('caneca-300', 'caneca'), a: arte('tulipas-rose') },
+    { m: modelo('garrafa-vidro', 'garrafa'), a: arte('limao-siciliano') },
+  ]
+  const destaques = artes.filter((a) => a.mais_vendida).slice(0, 4)
   const hoje = new Date()
   const proxima = (d?.datas || [])
     .map((x) => {
@@ -47,148 +57,143 @@ export default function Inicio() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-areia/70 textura">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 pb-10 pt-10 md:grid-cols-[1.05fr_1fr] md:pb-16 md:pt-16">
-          <div>
-            <p className="font-mao text-2xl text-terracota">nada de adesivo, nada de impressão</p>
-            <h1 className="mt-1 text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
-              Pintado à mão,
-              <br />
-              <em className="font-light text-terracota-escuro">uma peça de cada vez.</em>
-            </h1>
-            <p className="mt-5 max-w-md text-base text-cinza sm:text-lg">
-              Copos, canecas, taças e garrafas pintados com pincel no nosso ateliê. Escolha uma arte pronta ou desenhe a sua e o artesão diz se consegue pintar.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link to="/catalogo" className="btn-primario !px-6 !py-3 text-base">
-                Escolher minha peça <ArrowRight className="size-4" />
-              </Link>
-              <Link to="/criar" className="btn-secundario !px-6 !py-3 text-base">
-                <Brush className="size-4" /> Criar minha arte
-              </Link>
-            </div>
-            <p className="mt-6 flex items-center gap-2 text-sm text-cinza">
-              <Sparkles className="size-4 text-mel" /> Cada peça leva um número de série pintado na base.
-            </p>
-          </div>
-          <div className="relative mx-auto flex w-full max-w-md items-end justify-center">
-            {vitrine.map((v, i) => (
-              <div key={i} className={`${i === 1 ? 'z-10 w-[44%] -mx-4' : 'w-[36%]'} ${i === 0 ? 'translate-y-4 -rotate-3' : i === 2 ? 'translate-y-6 rotate-3' : ''}`}>
-                <Peca modelo={v.m} desenho={v.a?.desenho} pers={PERS_DEMO} className="w-full drop-shadow-xl" />
-              </div>
-            ))}
-            <span className="absolute -bottom-2 right-0 rotate-[-4deg] rounded-full bg-white px-3 py-1 font-mao text-lg text-argila shadow">feito à mão ♥</span>
-          </div>
+      <section className="mx-auto max-w-6xl px-4 pb-6 pt-8 text-center sm:pt-12">
+        <img src={`${BASE}logo.webp`} alt="Atelier Flor de Vidro, pintura em vidro" className="mx-auto w-48 rounded-full sm:w-60" width="240" height="240" />
+        <h1 className="mx-auto mt-4 max-w-2xl text-[34px] leading-[1.12] text-grafite sm:text-5xl">Pintura à mão em taças, canecas e garrafas</h1>
+        <p className="mx-auto mt-4 max-w-lg text-[17px] leading-relaxed text-cinza">Cada peça é pintada com pincel, uma de cada vez, aqui em {config.loja?.cidade || 'Sombrio, SC'}. Escolha uma arte ou crie a sua e feche o pedido pelo WhatsApp.</p>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <Link to="/catalogo" className="btn-primario !px-7 !py-3 text-base">
+            Escolher minha peça
+          </Link>
+          <Link to="/criar" className="btn-secundario !px-7 !py-3 text-base">
+            Criar minha arte
+          </Link>
+        </div>
+        <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 items-end gap-3 sm:gap-5">
+          {vitrine.map((v, i) => (
+            <Link key={i} to={v.m ? `/modelo/${v.m.id}?arte=${v.a?.id}` : '/catalogo'} className={i === 1 ? '' : 'mb-6 sm:mb-10'}>
+              <Moldura modelo={v.m} arte={v.a} />
+              <p className="mt-2 font-mao text-xl text-rosa sm:text-2xl">{v.a?.nome}</p>
+            </Link>
+          ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pt-12">
-        <h2 className="text-2xl sm:text-3xl">O que vamos pintar?</h2>
-        <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-          {CATEGORIAS.map((c) => {
-            const exemplo = modelos.find((m) => m.categoria === c.id)
+      <section className="mx-auto max-w-6xl px-4 pt-14">
+        <p className="ornamento mx-auto max-w-md">
+          <span className="titulo text-2xl text-grafite sm:text-3xl">Escolha a peça</span>
+        </p>
+        <div className="rolagem-fina -mx-4 mt-8 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-auto sm:grid sm:max-w-4xl sm:grid-cols-5 sm:px-0">
+          {categorias.map((c) => {
+            const m = modelos.find((x) => x.categoria === c.id)
             return (
-              <Link key={c.id} to={`/catalogo?categoria=${c.id}`} className="group overflow-hidden rounded-3xl bg-white ring-1 ring-linho/70 transition hover:-translate-y-0.5 hover:shadow-lg">
-                <div className="aspect-square bg-gradient-to-b from-areia/40 to-areia">
-                  <Peca modelo={exemplo || { forma: c.forma, material: 'vidro' }} desenho={arte(['floral-aquarela', 'margaridas', 'casamento-aliancas', 'ceu-estrelado'][CATEGORIAS.indexOf(c)])?.desenho} pers={PERS_DEMO} className="size-full p-3 transition duration-500 group-hover:scale-105" />
+              <Link key={c.id} to={`/catalogo?categoria=${c.id}`} className="group w-32 shrink-0 snap-start text-center sm:w-auto">
+                <div className="arco aspect-[4/5] overflow-hidden bg-petala">
+                  {m?.fotos?.[0] ? <img src={m.fotos[0]} alt="" className="size-full object-cover" /> : <Peca modelo={m || { forma: c.forma, material: 'vidro' }} className="size-full px-3 pt-5 transition duration-700 group-hover:scale-105" comSombra={false} ajustar />}
                 </div>
-                <p className="titulo flex items-center justify-between px-4 py-3 text-lg">
-                  {c.nome} <ArrowRight className="size-4 text-terracota opacity-0 transition group-hover:opacity-100" />
-                </p>
+                <p className="titulo mt-2 text-lg text-grafite group-hover:text-rosa">{c.nome}</p>
               </Link>
             )
           })}
         </div>
       </section>
 
-      {maisVendidos.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pt-14">
-          <div className="flex items-end justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl">Mais vendidos</h2>
-            <Link to="/catalogo" className="text-sm font-semibold text-terracota">
-              Ver todos
-            </Link>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {maisVendidos.map((m) => (
-              <CartaoModelo key={m.id} modelo={m} />
-            ))}
+      {destaques.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pt-16">
+          <p className="ornamento mx-auto max-w-md">
+            <span className="titulo text-2xl text-grafite sm:text-3xl">As artes mais pedidas</span>
+          </p>
+          <div className="mx-auto mt-8 grid max-w-5xl grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {destaques.map((a) => {
+              const m = modelos.find((x) => a.modelos_aceitos.includes(x.id) && x.forma === 'caneca') || modelos.find((x) => a.modelos_aceitos.includes(x.id))
+              if (!m) return null
+              return (
+                <Link key={a.id} to={`/modelo/${m.id}?arte=${a.id}`} className="group text-center">
+                  <Moldura modelo={m} arte={a} />
+                  <p className="titulo mt-3 text-lg text-grafite group-hover:text-rosa">{a.nome}</p>
+                  <p className="text-sm text-cinza">a partir de {moeda(Number(m.preco_base) + Number(a.acrescimo))}</p>
+                </Link>
+              )
+            })}
           </div>
         </section>
       )}
 
-      <section className="mx-auto max-w-6xl px-4 pt-14">
-        <h2 className="text-2xl sm:text-3xl">Ideias para presente</h2>
-        <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+      <section className="mx-auto max-w-6xl px-4 pt-16 text-center">
+        <p className="font-mao text-3xl text-rosa">ideias para presentear</p>
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
           {IDEIAS.map((i) => (
-            <Link key={i.id} to={i.id === 'corporativo' ? '/corporativo' : `/presentes/${i.id}`} className="rounded-3xl bg-white p-5 ring-1 ring-linho/70 transition hover:ring-terracota">
-              <i.icone className="size-6 text-terracota" />
-              <p className="titulo mt-3 text-xl">{i.nome}</p>
-              <p className="mt-1 text-sm text-cinza">{i.texto}</p>
+            <Link key={i.para} to={i.para} className="chip !px-5 !py-2 !text-[15px]">
+              {i.nome}
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto mt-14 max-w-6xl px-4">
-        <div className="grid items-center gap-6 overflow-hidden rounded-[2rem] bg-argila p-6 text-creme sm:p-10 md:grid-cols-2">
+      <section className="mt-16 bg-petala/70">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1fr_1.1fr]">
+          <div className="mx-auto w-full max-w-[280px]">
+            <Moldura modelo={modelo('caneca-300', 'caneca')} arte={arte('lacinhos')} pers={{ nome: 'Ana' }} className="bg-white" />
+          </div>
           <div>
-            <p className="font-mao text-2xl text-mel">o nosso diferencial</p>
-            <h2 className="mt-1 text-3xl sm:text-4xl">Crie sua arte e mande para o artesão</h2>
-            <p className="mt-3 text-linho">Escreva nomes, escolha flores e corações da nossa biblioteca, envie uma foto de referência. Em até 2 dias úteis você recebe o preço e o prazo, ou uma sugestão de ajuste.</p>
-            <ol className="mt-5 space-y-2 text-sm">
-              {['Escolha o modelo', 'Monte o desenho no editor', 'Receba preço e prazo', 'Aprovou? Vira pedido com um clique'].map((p, i) => (
+            <p className="font-mao text-3xl text-rosa">do seu jeitinho</p>
+            <h2 className="mt-1 text-3xl text-grafite sm:text-4xl">Crie a sua arte</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-cinza">Monte o desenho com as flores, frutinhas e lacinhos que a gente pinta, escreva o nome, mande uma foto de referência. A pintora vê tudo e responde pelo WhatsApp.</p>
+            <ol className="mt-6 space-y-3">
+              {['Escolha a peça', 'Monte o desenho no editor', 'Mande pelo WhatsApp com tudo pronto'].map((p, i) => (
                 <li key={p} className="flex items-center gap-3">
-                  <span className="flex size-6 items-center justify-center rounded-full bg-mel text-xs font-bold text-argila">{i + 1}</span> {p}
+                  <span className="titulo flex size-8 items-center justify-center rounded-full border border-ouro text-ouro">{i + 1}</span>
+                  <span className="text-grafite">{p}</span>
                 </li>
               ))}
             </ol>
-            <Link to="/criar" className="btn mt-6 bg-creme text-argila hover:bg-white">
-              <Brush className="size-4" /> Abrir o editor
+            <Link to="/criar" className="btn-primario mt-7">
+              Abrir o editor
             </Link>
-          </div>
-          <div className="mx-auto w-56 sm:w-64">
-            {modelo('caneca') && <Peca modelo={modelo('caneca-300') || modelo('caneca')} desenho={arte('ceu-estrelado')?.desenho} pers={{ nome: 'Theo' }} mostrarArea className="w-full" />}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-3 px-4 pt-14 md:grid-cols-2">
-        <Link to="/kit" className="rounded-3xl bg-salvia-clara p-6 transition hover:shadow-lg">
-          <p className="font-mao text-xl text-salvia">combina tudo</p>
-          <p className="titulo text-2xl">Monte um kit</p>
-          <p className="mt-1 text-sm text-cinza">Taças, garrafa e canecas com a mesma arte, com preço de kit.</p>
+      <section className="mx-auto grid max-w-6xl gap-4 px-4 pt-14 md:grid-cols-2">
+        <Link to="/kit" className="group rounded-[22px] border border-borda bg-white p-7 transition hover:border-rosa/40">
+          <p className="font-mao text-2xl text-folha">tudo combinando</p>
+          <p className="titulo text-2xl text-grafite group-hover:text-rosa">Kits com a mesma arte</p>
+          <p className="mt-2 text-cinza">Duas taças e uma garrafa, xícaras com pires, canecas do casal. Com desconto de kit.</p>
         </Link>
         {proxima && (
-          <Link to="/datas" className="rounded-3xl bg-rosa/40 p-6 transition hover:shadow-lg">
-            <p className="font-mao text-xl text-terracota">vem aí</p>
-            <p className="titulo text-2xl">
-              {proxima.nome} · {proxima.quando.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
+          <Link to="/datas" className="group rounded-[22px] border border-borda bg-white p-7 transition hover:border-rosa/40">
+            <p className="font-mao text-2xl text-rosa">vem aí</p>
+            <p className="titulo text-2xl text-grafite group-hover:text-rosa">
+              {proxima.nome}, {proxima.quando.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' })}
             </p>
-            <p className="mt-1 text-sm text-cinza">{proxima.descricao}</p>
+            <p className="mt-2 text-cinza">{proxima.descricao}</p>
           </Link>
         )}
       </section>
 
       {d?.galeria?.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pt-14">
-          <div className="flex items-end justify-between">
-            <h2 className="text-2xl sm:text-3xl">Feitos por clientes</h2>
-            <Link to="/feitos-por-clientes" className="text-sm font-semibold text-terracota">
-              Ver galeria
-            </Link>
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <section className="mx-auto max-w-6xl px-4 pt-16">
+          <p className="ornamento mx-auto max-w-md">
+            <span className="titulo text-2xl text-grafite sm:text-3xl">Feitas para clientes</span>
+          </p>
+          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
             {d.galeria.slice(0, 4).map((g) => (
-              <img key={g.id} src={g.foto} alt={g.legenda || 'Peça feita para cliente'} className="aspect-square w-full rounded-3xl object-cover" loading="lazy" />
+              <img key={g.id} src={g.foto} alt={g.legenda || 'Peça pintada para cliente'} className="arco aspect-[4/5] w-full object-cover" loading="lazy" />
             ))}
           </div>
+          <p className="mt-6 text-center">
+            <Link to="/feitos-por-clientes" className="text-rosa underline decoration-ouro underline-offset-4">
+              Ver todas as fotos
+            </Link>
+          </p>
         </section>
       )}
 
-      <section className="mx-auto max-w-3xl px-4 pt-16 text-center">
-        <p className="font-mao text-2xl text-terracota">sobre o ateliê</p>
-        <p className="titulo mt-2 text-2xl leading-snug sm:text-3xl">{config.textos?.sobre}</p>
+      <section className="mx-auto max-w-2xl px-4 pt-16 text-center">
+        <p className="titulo text-2xl leading-snug text-grafite sm:text-[28px]">{config.textos?.sobre}</p>
+        <a href={`https://wa.me/${config.loja?.whatsapp}?text=${encodeURIComponent('Olá! Vim pelo site ♡')}`} target="_blank" rel="noreferrer" className="btn-whats mt-8">
+          <IconeWhats /> Conversar com o ateliê
+        </a>
       </section>
     </div>
   )

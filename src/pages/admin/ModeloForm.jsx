@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import { db } from '../../lib/db'
 import { useApp } from '../../lib/app'
-import { CATEGORIAS, FORMAS, MATERIAIS, slug } from '../../lib/format'
+import { FORMAS, MATERIAIS, slug } from '../../lib/format'
 import { AREAS_PADRAO } from '../../lib/pecas'
 import { TituloPagina } from '../../components/Layout'
 import { Campo, Carregando, EnviarImagens } from '../../components/ui'
@@ -34,7 +34,7 @@ export default function ModeloForm() {
   const { id } = useParams()
   const novo = id === 'novo'
   const nav = useNavigate()
-  const { notificar } = useApp()
+  const { notificar, categorias } = useApp()
   const [m, setM] = useState(novo ? VAZIO : null)
   const [salvando, setSalvando] = useState(false)
 
@@ -64,7 +64,7 @@ export default function ModeloForm() {
       delete dados.criado_em
       if (novo) await db.inserir('modelos', dados)
       else await db.atualizar('modelos', id, dados)
-      notificar('Modelo salvo.')
+      notificar('Peça salva.')
       nav('/admin/modelos')
     } catch (err) {
       notificar(err.message, 'erro')
@@ -74,20 +74,20 @@ export default function ModeloForm() {
   }
 
   const excluir = async () => {
-    if (!window.confirm(`Excluir o modelo "${m.nome}"? Pedidos antigos continuam guardados.`)) return
+    if (!window.confirm(`Excluir a peça "${m.nome}"? Pedidos antigos continuam guardados.`)) return
     await db.remover('modelos', id)
-    notificar('Modelo excluído.')
+    notificar('Peça excluída.')
     nav('/admin/modelos')
   }
 
   return (
     <form onSubmit={salvar}>
       <TituloPagina
-        titulo={novo ? 'Novo modelo' : m.nome}
+        titulo={novo ? 'Nova peça' : m.nome}
         acao={
           <div className="flex gap-2">
             {!novo && (
-              <button type="button" onClick={excluir} className="btn-fantasma text-terracota">
+              <button type="button" onClick={excluir} className="btn-fantasma text-rosa">
                 <Trash2 className="size-4" /> Excluir
               </button>
             )}
@@ -105,7 +105,7 @@ export default function ModeloForm() {
             </Campo>
             <Campo rotulo="Categoria">
               <select className="campo" value={m.categoria} onChange={set('categoria')}>
-                {CATEGORIAS.map((c) => (
+                {categorias.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.nome}
                   </option>
@@ -158,10 +158,10 @@ export default function ModeloForm() {
             </Campo>
             <div className="space-y-2 pt-6">
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={m.disponivel} onChange={set('disponivel')} className="size-4 accent-terracota" /> Visível no site
+                <input type="checkbox" checked={m.disponivel} onChange={set('disponivel')} className="size-4 accent-rosa" /> Visível no site
               </label>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={m.mais_vendido} onChange={set('mais_vendido')} className="size-4 accent-terracota" /> Mostrar em “Mais vendidos”
+                <input type="checkbox" checked={m.mais_vendido} onChange={set('mais_vendido')} className="size-4 accent-rosa" /> Mostrar em “Mais vendidos”
               </label>
             </div>
           </section>

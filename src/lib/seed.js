@@ -2,8 +2,8 @@ import { ELEMENTOS_PADRAO } from './elementos'
 import { AREAS_PADRAO } from './pecas'
 
 const svgDe = (id) => ELEMENTOS_PADRAO.find((e) => e.id === id).svg
-const el = (id, x, y, s, cor = 'principal', rot = 0) => ({ id: `${id}-${x}-${y}`, tipo: 'elemento', svg: svgDe(id), x, y, s, cor, rot })
-const tx = (texto, x, y, t, fonte, cor = '#2f2622', curva = 0) => ({ id: `t-${texto}-${y}`, tipo: 'texto', texto, x, y, t, fonte, cor, curva, rot: 0 })
+const el = (id, x, y, s, cor = 'principal', rot = 0) => ({ id: `${id}-${x}-${y}`, tipo: 'elemento', nome: ELEMENTOS_PADRAO.find((e) => e.id === id).nome, svg: svgDe(id), x, y, s: Math.min(1.05, s * 1.3), cor, rot })
+const tx = (texto, x, y, t, fonte, cor = '#3b3436', curva = 0) => ({ id: `t-${texto}-${y}`, tipo: 'texto', texto, x, y, t: t * 1.12, fonte, cor, curva, rot: 0 })
 
 const modelo = (id, nome, categoria, forma, material, cap, alt, diam, preco, prazo, estoque, extra = {}) => ({
   id,
@@ -57,6 +57,9 @@ export const MODELOS = [
     mais_vendido: true,
     descricao: 'Garrafa com tampa de rosca, para água ou licor caseiro.',
   }),
+  modelo('pires-ceramica', 'Pires de Cerâmica', 'pires', 'pires', 'ceramica', null, 2, 15, 39.9, 5, 20, {
+    descricao: 'Pires avulso para combinar com a xícara ou servir docinhos.',
+  }),
   modelo('garrafa-termica', 'Garrafa Térmica Inox 500 ml', 'garrafas', 'garrafa', 'inox', 500, 25, 7, 99.9, 8, 0, {
     disponivel: false,
     descricao: 'Mantém a temperatura por até 12 horas. Pintura com tinta epóxi.',
@@ -71,7 +74,7 @@ const arte = (id, nome, tema, acrescimo, frente, verso, extra = {}) => ({
   nome,
   tema,
   acrescimo,
-  desenho: { frente, verso, cor: extra.cor || '#c94f6d' },
+  desenho: { frente, verso, cor: extra.cor || '#d9708b' },
   fotos: [],
   modelos_aceitos: extra.modelos || todos,
   ocasioes: extra.ocasioes || [],
@@ -82,118 +85,114 @@ const arte = (id, nome, tema, acrescimo, frente, verso, extra = {}) => ({
   criado_em: new Date().toISOString(),
 })
 
+const OURO = '#c9a35b'
+const TINTA = '#3b3436'
+
 export const ARTES = [
   arte(
-    'floral-aquarela',
-    'Floral Aquarela',
+    'tulipas-rose',
+    'Tulipas Rosé',
     'Floral',
     15,
-    [
-      el('el-flor', 0.22, 0.24, 0.3),
-      el('el-rosa', 0.78, 0.2, 0.26, '#d98c8c'),
-      el('el-folha', 0.4, 0.12, 0.16, '#7f9273', -30),
-      el('el-folha', 0.62, 0.1, 0.14, '#7f9273', 40),
-      el('el-margarida', 0.8, 0.82, 0.22, '#ffffff'),
-      el('el-folha', 0.16, 0.82, 0.16, '#7f9273', -60),
-      tx('{nome}', 0.5, 0.55, 0.2, 'Dancing Script'),
-    ],
-    [el('el-ramo', 0.5, 0.5, 0.7, '#7f9273')],
-    { mais: true, ocasioes: ['aniversario', 'casamento'], descricao: 'Flores soltas em tons de aquarela, com o nome no centro.' }
+    [el('el-tulipas-buque', 0.5, 0.32, 0.62), el('el-pontinhos', 0.5, 0.36, 0.95, OURO), tx('{nome}', 0.5, 0.8, 0.22, 'Allura', TINTA)],
+    [el('el-florzinhas', 0.5, 0.5, 0.7)],
+    { mais: true, cor: '#e79aae', ocasioes: ['aniversario', 'maes'], descricao: 'Buquê de tulipas com pontinhos dourados e o nome em caligrafia.' }
   ),
   arte(
-    'nome-caligrafia',
-    'Nome em Caligrafia',
+    'limao-siciliano',
+    'Limão Siciliano',
+    'Frutas',
+    15,
+    [
+      el('el-limao', 0.28, 0.3, 0.42, '#f2d24b', -18),
+      el('el-limao', 0.72, 0.56, 0.38, '#f2d24b', 22),
+      el('el-folhagem', 0.74, 0.18, 0.3, '#5f7146'),
+      el('el-limao-fatia', 0.26, 0.76, 0.24, '#f2d24b'),
+      tx('{frase}', 0.62, 0.86, 0.12, 'Sacramento', '#5f7146'),
+    ],
+    [el('el-limao-fatia', 0.5, 0.5, 0.34, '#f2d24b')],
+    { mais: true, cor: '#f2d24b', campos: { cor: false }, descricao: 'Limões sicilianos com folhagem, a pintura que mais sai no verão.' }
+  ),
+  arte(
+    'girassois',
+    'Girassóis',
+    'Floral',
+    18,
+    [
+      el('el-girassol', 0.32, 0.3, 0.42, '#f2c230'),
+      el('el-girassol', 0.7, 0.56, 0.36, '#f2c230'),
+      el('el-girassol', 0.3, 0.8, 0.26, '#f2c230'),
+      el('el-folhagem', 0.72, 0.18, 0.3, '#5f7146'),
+      el('el-folhagem', 0.6, 0.86, 0.26, '#5f7146'),
+    ],
+    [el('el-florzinhas', 0.5, 0.5, 0.6, '#ee9a4d')],
+    { mais: true, cor: '#f2c230', campos: { nome: false, frase: false, data: false, cor: false }, descricao: 'Girassóis grandes e amarelinhos, para alegrar a mesa.' }
+  ),
+  arte(
+    'cosmos',
+    'Campo de Cosmos',
+    'Floral',
+    15,
+    [el('el-cosmos', 0.28, 0.26, 0.36), el('el-cosmos', 0.7, 0.42, 0.3), el('el-cosmos', 0.36, 0.7, 0.28), el('el-folhagem', 0.7, 0.8, 0.3, '#5f7146'), el('el-pontinhos', 0.5, 0.5, 0.9, OURO)],
+    [el('el-cosmos', 0.5, 0.5, 0.36)],
+    { cor: '#e08aa6', ocasioes: ['aniversario', 'maes'], descricao: 'Cosmos cor-de-blush soltinhos, como um jardim pintado.' }
+  ),
+  arte(
+    'lacinhos',
+    'Lacinhos',
+    'Delicado',
+    12,
+    [el('el-laco', 0.24, 0.2, 0.26), el('el-laco', 0.76, 0.42, 0.22), el('el-laco', 0.3, 0.72, 0.2), el('el-coracoes', 0.66, 0.84, 0.3), tx('{nome}', 0.5, 0.52, 0.16, 'Great Vibes', TINTA)],
+    [el('el-laco', 0.5, 0.5, 0.36)],
+    { mais: true, cor: '#f0a7b8', ocasioes: ['aniversario', 'padrinhos'], descricao: 'Lacinhos e coraçõezinhos, a moda que todo mundo ama.' }
+  ),
+  arte(
+    'cerejinhas',
+    'Cerejinhas',
+    'Frutas',
+    12,
+    [
+      el('el-cereja', 0.26, 0.24, 0.28),
+      el('el-cereja', 0.74, 0.3, 0.24, 'principal', 18),
+      el('el-cereja', 0.34, 0.66, 0.22, 'principal', -14),
+      el('el-cereja', 0.76, 0.76, 0.26),
+      tx('{nome}', 0.52, 0.48, 0.15, 'Dancing Script', TINTA),
+    ],
+    [el('el-poa', 0.5, 0.5, 1, '#f0b8c4')],
+    { cor: '#c7344a', descricao: 'Cerejinhas espalhadas com poá no verso.' }
+  ),
+  arte(
+    'nome-dourado',
+    'Nome em Dourado',
     'Nomes',
     10,
-    [tx('{nome}', 0.5, 0.42, 0.26, 'Satisfy', 'principal', 30), tx('{frase}', 0.5, 0.68, 0.1, 'Patrick Hand', '#6b3f2a')],
-    [el('el-coracao', 0.5, 0.5, 0.2)],
-    { mais: true, cor: '#8f4c2b', ocasioes: ['aniversario', 'padrinhos'], descricao: 'O nome em letra cursiva, com uma frase curta embaixo.' }
-  ),
-  arte(
-    'data-especial',
-    'Data Especial',
-    'Datas',
-    12,
-    [el('el-coracao-traco', 0.5, 0.22, 0.24), tx('{data}', 0.5, 0.52, 0.18, 'Amatic SC', '#2f2622'), tx('{frase}', 0.5, 0.74, 0.11, 'Caveat', 'principal')],
-    [tx('{nome}', 0.5, 0.5, 0.16, 'Caveat', 'principal')],
-    { ocasioes: ['casamento', 'aniversario'], descricao: 'Para eternizar um dia: casamento, nascimento, formatura.' }
-  ),
-  arte(
-    'listras-time',
-    'Listras do Seu Time',
-    'Times',
-    12,
-    [el('el-listras', 0.5, 0.3, 0.9), tx('{nome}', 0.5, 0.72, 0.18, 'Pacifico', '#2f2622')],
-    [tx('{frase}', 0.5, 0.5, 0.14, 'Amatic SC', 'principal')],
-    { cor: '#3f6b5a', descricao: 'Listras nas cores do seu time e o seu nome. Sem escudos ou marcas registradas.' }
-  ),
-  arte(
-    'ramo-minimalista',
-    'Ramo Minimalista',
-    'Minimalista',
-    8,
-    [el('el-ramo', 0.5, 0.42, 0.62, '#3f6b5a', 10), tx('{nome}', 0.5, 0.86, 0.11, 'Fraunces', '#2f2622')],
-    [],
-    { cor: '#3f6b5a', modelos: todos, ocasioes: ['corporativo', 'padrinhos'], mais: true, descricao: 'Traço fino e delicado, combina com qualquer peça.' }
-  ),
-  arte(
-    'ceu-estrelado',
-    'Céu Estrelado',
-    'Infantil',
-    12,
-    [
-      el('el-lua', 0.24, 0.22, 0.26, '#e3b25a'),
-      el('el-estrela', 0.66, 0.14, 0.12, '#e3b25a'),
-      el('el-estrela', 0.84, 0.36, 0.08, '#e3b25a'),
-      el('el-estrela', 0.12, 0.56, 0.08, '#e3b25a'),
-      tx('{nome}', 0.5, 0.66, 0.2, 'Pacifico', 'principal'),
-    ],
-    [el('el-bolinhas', 0.5, 0.5, 0.7, 'principal')],
-    { cor: '#4a6fa5', ocasioes: ['aniversario'], descricao: 'Lua e estrelas para os pequenos.' }
-  ),
-  arte(
-    'casamento-aliancas',
-    'Alianças e Ramo',
-    'Casamento',
-    18,
-    [el('el-alianca', 0.5, 0.2, 0.28, '#e3b25a'), tx('{nome}', 0.5, 0.5, 0.16, 'Dancing Script', '#2f2622'), tx('{data}', 0.5, 0.72, 0.1, 'Fraunces', '#6b3f2a')],
-    [el('el-ramo', 0.5, 0.5, 0.6, '#7f9273')],
-    {
-      cor: '#e3b25a',
-      modelos: vidro,
-      ocasioes: ['casamento', 'padrinhos'],
-      mais: true,
-      descricao: 'Para noivos e padrinhos: os nomes do casal e a data.',
-    }
-  ),
-  arte(
-    'natal-pinheiro',
-    'Natal no Pinheiro',
-    'Natal',
-    12,
-    [
-      el('el-pinheiro', 0.5, 0.3, 0.34, '#3f6b5a'),
-      el('el-estrela', 0.5, 0.06, 0.1, '#e3b25a'),
-      tx('Feliz Natal', 0.5, 0.66, 0.16, 'Dancing Script', '#c94f6d'),
-      tx('{nome}', 0.5, 0.86, 0.1, 'Patrick Hand', '#2f2622'),
-    ],
-    [el('el-bolinhas', 0.5, 0.5, 0.7, '#c94f6d')],
-    { cor: '#c94f6d', ocasioes: ['corporativo'], campos: { frase: false }, descricao: 'Clima de Natal para presentear família e equipe.' }
+    [el('el-florzinhas', 0.5, 0.18, 0.5), tx('{nome}', 0.5, 0.52, 0.28, 'Great Vibes', OURO), tx('{frase}', 0.5, 0.8, 0.1, 'Gilda Display', TINTA)],
+    [el('el-estrela', 0.5, 0.5, 0.16, OURO)],
+    { cor: '#f0b8c4', ocasioes: ['aniversario', 'padrinhos', 'casamento'], descricao: 'O nome em letra dourada, com florzinhas por cima.' }
   ),
   arte(
     'margaridas',
-    'Campo de Margaridas',
+    'Margaridas',
     'Floral',
     15,
     [
-      el('el-margarida', 0.2, 0.7, 0.28, '#ffffff'),
-      el('el-margarida', 0.48, 0.82, 0.22, '#ffffff'),
-      el('el-margarida', 0.8, 0.68, 0.3, '#ffffff'),
-      el('el-folha', 0.34, 0.9, 0.12, '#7f9273', 30),
-      tx('{frase}', 0.5, 0.26, 0.13, 'Caveat', 'principal'),
+      el('el-margarida', 0.22, 0.72, 0.3, '#ffffff'),
+      el('el-margarida', 0.5, 0.84, 0.24, '#ffffff'),
+      el('el-margarida', 0.8, 0.7, 0.32, '#ffffff'),
+      el('el-folhagem', 0.36, 0.92, 0.2, '#5f7146'),
+      tx('{frase}', 0.5, 0.28, 0.13, 'Sacramento', 'principal'),
     ],
-    [el('el-margarida', 0.5, 0.5, 0.3, '#ffffff')],
-    { cor: '#e3b25a', modelos: todos, ocasioes: ['aniversario'], descricao: 'Margaridas brancas com a sua frase.' }
+    [el('el-margarida', 0.5, 0.5, 0.32, '#ffffff')],
+    { cor: '#a45c74', ocasioes: ['aniversario', 'maes'], descricao: 'Margaridas brancas com a sua frase.' }
+  ),
+  arte(
+    'casamento-oliveira',
+    'Casamento com Oliveira',
+    'Casamento',
+    18,
+    [el('el-ramo-oliva', 0.5, 0.24, 0.5, '#7d8a5a', -30), tx('{nome}', 0.5, 0.56, 0.18, 'Great Vibes', TINTA), tx('{data}', 0.5, 0.8, 0.09, 'Gilda Display', OURO)],
+    [el('el-ramo-oliva', 0.5, 0.5, 0.6, '#7d8a5a')],
+    { cor: '#7d8a5a', modelos: vidro, ocasioes: ['casamento', 'padrinhos'], campos: { cor: false }, descricao: 'Os nomes do casal e a data, com um ramo de oliveira.' }
   ),
 ]
 
@@ -231,22 +230,21 @@ export const KITS = [
 ]
 
 export const DATAS = [
-  { id: 'd-maes', nome: 'Dia das Mães', dia: 10, mes: 5, descricao: 'Segundo domingo de maio. Peça com antecedência: a fila de pintura enche.', artes_sugeridas: ['floral-aquarela', 'margaridas', 'nome-caligrafia'] },
-  { id: 'd-namorados', nome: 'Dia dos Namorados', dia: 12, mes: 6, descricao: 'Taças com os nomes do casal e a data em que tudo começou.', artes_sugeridas: ['data-especial', 'casamento-aliancas'] },
-  { id: 'd-pais', nome: 'Dia dos Pais', dia: 9, mes: 8, descricao: 'Segundo domingo de agosto. Copos e canecas com o time do coração.', artes_sugeridas: ['listras-time', 'ramo-minimalista'] },
-  { id: 'd-criancas', nome: 'Dia das Crianças', dia: 12, mes: 10, descricao: 'Copos com o nome e desenhos que eles amam.', artes_sugeridas: ['ceu-estrelado'] },
-  { id: 'd-professores', nome: 'Dia dos Professores', dia: 15, mes: 10, descricao: 'Lembrancinha da turma com o nome de cada professor.', artes_sugeridas: ['nome-caligrafia', 'ramo-minimalista'] },
-  { id: 'd-formatura', nome: 'Formaturas', dia: 15, mes: 12, descricao: 'Taças de brinde com nome e ano de formatura.', artes_sugeridas: ['data-especial', 'nome-caligrafia'] },
-  { id: 'd-natal', nome: 'Natal', dia: 25, mes: 12, descricao: 'Presentes de família e de fim de ano para equipes.', artes_sugeridas: ['natal-pinheiro'] },
+  { id: 'd-maes', nome: 'Dia das Mães', dia: 10, mes: 5, descricao: 'Segundo domingo de maio. Encomende com antecedência, a agenda de pintura enche rápido.', artes_sugeridas: ['tulipas-rose', 'margaridas', 'cosmos'] },
+  { id: 'd-namorados', nome: 'Dia dos Namorados', dia: 12, mes: 6, descricao: 'Taças com os nomes do casal e a data em que tudo começou.', artes_sugeridas: ['casamento-oliveira', 'lacinhos'] },
+  { id: 'd-pais', nome: 'Dia dos Pais', dia: 9, mes: 8, descricao: 'Segundo domingo de agosto. Canecas e copos com o nome do paizão.', artes_sugeridas: ['nome-dourado', 'limao-siciliano'] },
+  { id: 'd-professores', nome: 'Dia dos Professores', dia: 15, mes: 10, descricao: 'Lembrancinha da turma com o nome de cada professora.', artes_sugeridas: ['nome-dourado', 'margaridas'] },
+  { id: 'd-formatura', nome: 'Formaturas', dia: 15, mes: 12, descricao: 'Taças de brinde com nome e ano de formatura.', artes_sugeridas: ['nome-dourado'] },
+  { id: 'd-natal', nome: 'Natal', dia: 25, mes: 12, descricao: 'Presentes para a família e para a equipe no fim do ano.', artes_sugeridas: ['cerejinhas', 'nome-dourado'] },
 ]
 
 export const CONFIG_PADRAO = {
   loja: {
-    nome: 'Ateliê Flor de Vidro',
-    whatsapp: '5511999999999',
-    email: 'contato@exemplo.com',
-    instagram: '',
-    cidade: 'São Paulo, SP',
+    nome: 'Atelier Flor de Vidro',
+    whatsapp: '554896273495',
+    email: '',
+    instagram: 'atelieflordevidro',
+    cidade: 'Sombrio, SC',
     pix_chave: '',
     pix_nome: '',
   },
@@ -269,11 +267,20 @@ export const CONFIG_PADRAO = {
   },
   textos: {
     sobre:
-      'Cada peça sai do nosso ateliê pintada à mão, uma de cada vez. Nada de adesivo ou impressão: é tinta, pincel e paciência. Por isso nenhuma peça é igual à outra.',
+      'Cada peça sai do ateliê pintada à mão, uma de cada vez. Nada de adesivo ou impressão: é tinta, pincel e muito carinho. Por isso nenhuma peça é igual à outra.',
     aviso_artesanal: 'Por ser pintura à mão, podem existir pequenas variações. Isso torna sua peça única.',
     trocas:
       'Se a peça chegar danificada, mande uma foto pelo WhatsApp em até 7 dias que pintamos outra. Peças personalizadas não têm troca por arrependimento.',
     cuidados: 'Lavar à mão, com esponja macia. Não usar no micro-ondas nem na lava-louças.',
   },
   corporativo: { quantidade_minima: 20 },
+  categorias: {
+    lista: [
+      { id: 'tacas', nome: 'Taças', forma: 'taca' },
+      { id: 'canecas', nome: 'Xícaras e canecas', forma: 'caneca' },
+      { id: 'copos', nome: 'Copos', forma: 'copo' },
+      { id: 'garrafas', nome: 'Garrafas', forma: 'garrafa' },
+      { id: 'pires', nome: 'Pires e pratos', forma: 'pires' },
+    ],
+  },
 }

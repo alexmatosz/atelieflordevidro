@@ -4,7 +4,7 @@ import { db, MODO_DEMO, supabase } from './db'
 
 const Ctx = createContext(null)
 
-const CHAVE_USUARIO = 'afv:usuario'
+const CHAVE_ADMIN = 'afv:usuario'
 const CHAVE_CARRINHO = 'afv:carrinho'
 
 function lerJson(chave, padrao) {
@@ -26,7 +26,7 @@ function gravarJson(chave, valor) {
 
 export function ProvedorApp({ children }) {
   const [config, setConfig] = useState(CONFIG_PADRAO)
-  const [usuario, setUsuario] = useState(() => (MODO_DEMO ? lerJson(CHAVE_USUARIO, null) : null))
+  const [usuario, setUsuario] = useState(() => (MODO_DEMO ? lerJson(CHAVE_ADMIN, null) : null))
   const [carregandoUsuario, setCarregandoUsuario] = useState(!MODO_DEMO)
   const [carrinho, setCarrinho] = useState(() => lerJson(CHAVE_CARRINHO, []))
   const [contextoWhats, setContextoWhats] = useState('')
@@ -37,7 +37,9 @@ export function ProvedorApp({ children }) {
     recarregarConfig()
   }, [recarregarConfig])
 
-  useEffect(() => gravarJson(CHAVE_CARRINHO, carrinho), [carrinho])
+  useEffect(() => {
+    gravarJson(CHAVE_CARRINHO, carrinho)
+  }, [carrinho])
 
   useEffect(() => {
     if (MODO_DEMO) return
@@ -47,7 +49,7 @@ export function ProvedorApp({ children }) {
       const carregarPerfil = async (sessao) => {
         if (!sessao?.user) return setUsuario(null)
         const { data } = await c.from('perfis').select('*').eq('id', sessao.user.id).maybeSingle()
-        if (!cancelado) setUsuario({ id: sessao.user.id, email: sessao.user.email, nome: data?.nome || '', whatsapp: data?.telefone || '', papel: data?.papel || 'cliente' })
+        if (!cancelado) setUsuario({ id: sessao.user.id, email: sessao.user.email, nome: data?.nome || '', papel: data?.papel || 'cliente' })
       }
       const { data } = await c.auth.getSession()
       await carregarPerfil(data.session)
@@ -60,29 +62,20 @@ export function ProvedorApp({ children }) {
     }
   }, [])
 
-  const entrarDemo = useCallback((dados) => {
-    const u = { id: dados.papel === 'admin' ? 'admin-demo' : `cliente-${(dados.email || dados.nome).toLowerCase()}`, ...dados }
-    gravarJson(CHAVE_USUARIO, u)
-    setUsuario(u)
-    return u
-  }, [])
-
-  const entrar = useCallback(async (email, senha) => {
+  const entrarAdmin = useCallback(async (email, senha) => {
+    if (MODO_DEMO) {
+      const u = { id: 'admin-demo', nome: 'Ateliê', email: email || 'demo', papel: 'admin' }
+      gravarJson(CHAVE_ADMIN, u)
+      setUsuario(u)
+      return
+    }
     const c = await supabase()
     const { error } = await c.auth.signInWithPassword({ email, password: senha })
     if (error) throw new Error(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : error.message)
   }, [])
 
-  const cadastrar = useCallback(async ({ nome, email, senha, whatsapp }) => {
-    const c = await supabase()
-    const { data, error } = await c.auth.signUp({ email, password: senha, options: { data: { nome } } })
-    if (error) throw new Error(error.message)
-    if (data.user && whatsapp) await c.from('perfis').update({ telefone: whatsapp, nome }).eq('id', data.user.id)
-    return data.session ? 'ok' : 'confirmar'
-  }, [])
-
   const sair = useCallback(async () => {
-    if (MODO_DEMO) gravarJson(CHAVE_USUARIO, null)
+    if (MODO_DEMO) gravarJson(CHAVE_ADMIN, null)
     else await (await supabase()).auth.signOut()
     setUsuario(null)
   }, [])
@@ -99,16 +92,17 @@ export function ProvedorApp({ children }) {
     setTimeout(() => setAviso((a) => (a?.texto === texto ? null : a)), 3800)
   }, [])
 
+  const categorias = config.categorias?.lista?.length ? config.categorias.lista : CONFIG_PADRAO.categorias.lista
+
   const valor = useMemo(
     () => ({
       config,
+      categorias,
       recarregarConfig,
       usuario,
       carregandoUsuario,
       ehAdmin: usuario?.papel === 'admin',
-      entrarDemo,
-      entrar,
-      cadastrar,
+      entrarAdmin,
       sair,
       carrinho,
       adicionarAoCarrinho,
@@ -120,13 +114,15 @@ export function ProvedorApp({ children }) {
       aviso,
       notificar,
     }),
-    [config, recarregarConfig, usuario, carregandoUsuario, entrarDemo, entrar, cadastrar, sair, carrinho, adicionarAoCarrinho, alterarItem, removerItem, limparCarrinho, contextoWhats, aviso, notificar]
+    [config, categorias, recarregarConfig, usuario, carregandoUsuario, entrarAdmin, sair, carrinho, adicionarAoCarrinho, alterarItem, removerItem, limparCarrinho, contextoWhats, aviso, notificar]
   )
 
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
 }
 
 export const useApp = () => useContext(Ctx)
+
+export const nomeCategoria = (categorias, id) => categorias.find((c) => c.id === id)?.nome || id
 
 export function useDados(carregar, deps = []) {
   const [dados, setDados] = useState(null)

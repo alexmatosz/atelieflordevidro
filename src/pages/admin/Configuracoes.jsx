@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { db, MODO_DEMO, reiniciarDemo } from '../../lib/db'
 import { useApp } from '../../lib/app'
-import { mascaraFone, somenteDigitos } from '../../lib/format'
+import { FORMAS, mascaraFone, slug, somenteDigitos } from '../../lib/format'
 import { TituloPagina } from '../../components/Layout'
 import { Campo } from '../../components/ui'
 
@@ -47,7 +47,7 @@ export default function Configuracoes() {
     <div>
       <TituloPagina titulo="Configurações" />
       <div className="grid gap-6 xl:grid-cols-2">
-        <Secao titulo="Loja e WhatsApp" sub="O número recebe as mensagens do botão flutuante." aoSalvar={salvar('loja')}>
+        <Secao titulo="Loja e WhatsApp" sub="Este número recebe os pedidos e as dúvidas do site." aoSalvar={salvar('loja')}>
           <div className="grid gap-4 sm:grid-cols-2">
             <Campo rotulo="Nome da loja">
               <input className="campo" value={c.loja.nome} onChange={set('loja', 'nome')} />
@@ -69,7 +69,7 @@ export default function Configuracoes() {
             <Campo rotulo="Cidade">
               <input className="campo" value={c.loja.cidade} onChange={set('loja', 'cidade')} />
             </Campo>
-            <Campo rotulo="Chave Pix" dica="Aparece para o cliente ao escolher Pix.">
+            <Campo rotulo="Chave Pix" dica="Para você copiar e mandar na conversa.">
               <input className="campo" value={c.loja.pix_chave || ''} onChange={set('loja', 'pix_chave')} />
             </Campo>
             <Campo rotulo="Nome do recebedor do Pix">
@@ -91,40 +91,40 @@ export default function Configuracoes() {
                 </button>
               </div>
             ))}
-            <button type="button" className="text-sm font-semibold text-terracota" onClick={() => setC({ ...c, descontos: { faixas: [...c.descontos.faixas, { minimo: 100, percentual: 25 }] } })}>
+            <button type="button" className="text-sm font-semibold text-rosa" onClick={() => setC({ ...c, descontos: { faixas: [...c.descontos.faixas, { minimo: 100, percentual: 25 }] } })}>
               <Plus className="inline size-4" /> Adicionar faixa
             </button>
           </div>
         </Secao>
 
-        <Secao titulo="Frete" sub="Por região, pelo primeiro dígito do CEP. Enquanto não houver integração com transportadora." aoSalvar={salvar('frete')}>
-          <Campo rotulo="Frete grátis acima de (R$)">
-            <input className="campo !w-40" type="number" min="0" value={c.frete.gratis_acima ?? ''} onChange={(e) => setC({ ...c, frete: { ...c.frete, gratis_acima: e.target.value === '' ? null : Number(e.target.value) } })} />
-          </Campo>
+        <Secao titulo="Categorias da loja" sub="Os grupos que aparecem no site. Crie uma nova quando começar a pintar outro tipo de peça." aoSalvar={salvar('categorias')}>
           <div className="space-y-2">
-            {c.frete.faixas.map((f, i) => (
-              <div key={i} className="grid grid-cols-[1fr_90px_80px_70px_auto] items-end gap-2 text-sm">
-                <Campo rotulo={i === 0 ? 'Região' : undefined}>
-                  <input className="campo" value={f.regiao} onChange={(e) => setFaixa('frete', i, 'regiao', e.target.value)} />
-                </Campo>
-                <Campo rotulo={i === 0 ? 'CEPs' : undefined}>
-                  <input className="campo" value={(f.prefixos || []).join(',')} onChange={(e) => setFaixa('frete', i, 'prefixos', e.target.value.split(',').map((x) => x.trim()))} title="Começo do CEP, separado por vírgula" />
-                </Campo>
-                <Campo rotulo={i === 0 ? 'R$' : undefined}>
-                  <input className="campo" type="number" min="0" value={f.valor} onChange={(e) => setFaixa('frete', i, 'valor', Number(e.target.value))} />
-                </Campo>
-                <Campo rotulo={i === 0 ? 'Dias' : undefined}>
-                  <input className="campo" type="number" min="1" value={f.dias} onChange={(e) => setFaixa('frete', i, 'dias', Number(e.target.value))} />
-                </Campo>
-                <button type="button" onClick={() => removerFaixa('frete', i)} className="pb-3 text-cinza" aria-label="Remover região">
+            {(c.categorias?.lista || []).map((cat, i) => (
+              <div key={cat.id} className="grid grid-cols-[1fr_150px_auto] items-center gap-2">
+                <input className="campo" value={cat.nome} onChange={(e) => setC({ ...c, categorias: { lista: c.categorias.lista.map((x, j) => (j === i ? { ...x, nome: e.target.value } : x)) } })} aria-label="Nome da categoria" />
+                <select className="campo" value={cat.forma} onChange={(e) => setC({ ...c, categorias: { lista: c.categorias.lista.map((x, j) => (j === i ? { ...x, forma: e.target.value } : x)) } })} aria-label="Desenho da categoria">
+                  {FORMAS.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.nome}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" onClick={() => setC({ ...c, categorias: { lista: c.categorias.lista.filter((_, j) => j !== i) } })} className="p-1 text-cinza" aria-label={`Remover ${cat.nome}`}>
                   <Trash2 className="size-4" />
                 </button>
               </div>
             ))}
-            <button type="button" className="text-sm font-semibold text-terracota" onClick={() => setC({ ...c, frete: { ...c.frete, faixas: [...c.frete.faixas, { regiao: 'Nova região', prefixos: [], valor: 30, dias: 7 }] } })}>
-              <Plus className="inline size-4" /> Adicionar região
+            <button
+              type="button"
+              className="text-sm text-rosa"
+              onClick={() => {
+                const nome = 'Nova categoria'
+                setC({ ...c, categorias: { lista: [...(c.categorias?.lista || []), { id: `${slug(nome)}-${Date.now().toString(36)}`, nome, forma: 'caneca' }] } })
+              }}
+            >
+              <Plus className="inline size-4" /> Adicionar categoria
             </button>
-            <p className="text-xs text-cinza">CEP que não se encaixar em nenhuma região paga R$ 55 com 12 dias úteis.</p>
+            <p className="text-xs text-cinza">Peças de uma categoria removida continuam cadastradas; troque a categoria delas em Peças.</p>
           </div>
         </Secao>
 

@@ -34,14 +34,14 @@ export default function GaleriaAdmin() {
         }
       />
       {sugestoes.length > 0 && (
-        <section className="mb-6 rounded-2xl bg-salvia-clara/50 p-4">
+        <section className="mb-6 rounded-2xl bg-folha-clara/50 p-4">
           <p className="mb-3 text-sm font-semibold">Clientes que autorizaram mostrar a peça</p>
           <div className="flex flex-wrap gap-3">
             {sugestoes.map((p) => (
               <div key={p.id} className="w-32 text-xs">
                 <img src={p.foto_pronta} alt="" className="aspect-square w-full rounded-xl object-cover" />
                 <p className="mt-1 truncate">#{p.numero} · {p.cliente_nome}</p>
-                <button className="font-semibold text-terracota" onClick={() => adicionar({ foto: p.foto_pronta, pedido_id: p.id, cliente_nome: p.cliente_nome.split(' ')[0] })}>
+                <button className="font-semibold text-rosa" onClick={() => adicionar({ foto: p.foto_pronta, pedido_id: p.id, cliente_nome: p.cliente_nome.split(' ')[0] })}>
                   Publicar
                 </button>
               </div>
@@ -60,7 +60,7 @@ export default function GaleriaAdmin() {
                 <p className="truncate font-semibold">{f.legenda || f.cliente_nome || 'Sem legenda'}</p>
                 <div className="flex justify-between">
                   <button
-                    className="font-semibold text-terracota"
+                    className="font-semibold text-rosa"
                     onClick={async () => {
                       await db.atualizar('galeria_clientes', f.id, { publicado: !f.publicado })
                       recarregar()
@@ -103,7 +103,7 @@ export default function GaleriaAdmin() {
               <input className="campo" value={nova.legenda} onChange={(e) => setNova({ ...nova, legenda: e.target.value })} placeholder="Taças do casamento da Ana e do Léo" />
             </Campo>
             <label className="flex items-start gap-2 text-sm">
-              <input type="checkbox" required className="mt-0.5 size-4 accent-terracota" checked={nova.autorizado} onChange={(e) => setNova({ ...nova, autorizado: e.target.checked })} /> O cliente autorizou mostrar esta foto no site.
+              <input type="checkbox" required className="mt-0.5 size-4 accent-rosa" checked={nova.autorizado} onChange={(e) => setNova({ ...nova, autorizado: e.target.checked })} /> O cliente autorizou mostrar esta foto no site.
             </label>
             <button className="btn-primario w-full">Publicar</button>
           </form>

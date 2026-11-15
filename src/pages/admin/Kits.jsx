@@ -42,7 +42,7 @@ export default function Kits() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {d.kits.map((k) => (
-            <button key={k.id} onClick={() => setEdit(structuredClone(k))} className={`cartao p-4 text-left transition hover:border-terracota ${k.ativo ? '' : 'opacity-60'}`}>
+            <button key={k.id} onClick={() => setEdit(structuredClone(k))} className={`cartao p-4 text-left transition hover:border-rosa ${k.ativo ? '' : 'opacity-60'}`}>
               <p className="titulo text-lg">{k.nome}</p>
               <ul className="mt-1 text-sm text-cinza">
                 {k.composicao.map((c, i) => (
@@ -86,7 +86,7 @@ export default function Kits() {
                   </div>
                 ))}
               </div>
-              <button type="button" className="mt-2 text-sm font-semibold text-terracota" onClick={() => setEdit({ ...edit, composicao: [...edit.composicao, { modelo_id: d.modelos[0]?.id, quantidade: 1 }] })}>
+              <button type="button" className="mt-2 text-sm font-semibold text-rosa" onClick={() => setEdit({ ...edit, composicao: [...edit.composicao, { modelo_id: d.modelos[0]?.id, quantidade: 1 }] })}>
                 + Adicionar peça
               </button>
             </div>
@@ -95,7 +95,7 @@ export default function Kits() {
                 <input className="campo" type="number" min="0" max="80" value={edit.desconto_percentual} onChange={(e) => setEdit({ ...edit, desconto_percentual: e.target.value })} />
               </Campo>
               <label className="flex items-center gap-2 pt-6 text-sm">
-                <input type="checkbox" className="size-4 accent-terracota" checked={edit.ativo} onChange={(e) => setEdit({ ...edit, ativo: e.target.checked })} /> Visível no site
+                <input type="checkbox" className="size-4 accent-rosa" checked={edit.ativo} onChange={(e) => setEdit({ ...edit, ativo: e.target.checked })} /> Visível no site
               </label>
             </div>
             <div className="flex gap-2">
@@ -103,7 +103,7 @@ export default function Kits() {
               {edit.id && (
                 <button
                   type="button"
-                  className="btn-fantasma text-terracota"
+                  className="btn-fantasma text-rosa"
                   onClick={async () => {
                     if (!window.confirm('Excluir este kit?')) return
                     await db.remover('kits', edit.id)

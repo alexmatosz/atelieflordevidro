@@ -31,12 +31,6 @@ export const slug = (t) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
 
-export const CATEGORIAS = [
-  { id: 'copos', nome: 'Copos', forma: 'copo' },
-  { id: 'canecas', nome: 'Xícaras e Canecas', forma: 'caneca' },
-  { id: 'tacas', nome: 'Taças', forma: 'taca' },
-  { id: 'garrafas', nome: 'Garrafas', forma: 'garrafa' },
-]
 
 export const MATERIAIS = [
   { id: 'vidro', nome: 'Vidro' },
@@ -50,24 +44,20 @@ export const FORMAS = [
   { id: 'caneca', nome: 'Caneca' },
   { id: 'xicara', nome: 'Xícara' },
   { id: 'garrafa', nome: 'Garrafa' },
+  { id: 'pires', nome: 'Pires ou prato' },
+  { id: 'jarra', nome: 'Jarra' },
+  { id: 'pote', nome: 'Pote com tampa' },
 ]
 
-export const TEMAS = ['Floral', 'Nomes', 'Datas', 'Times', 'Minimalista', 'Infantil', 'Casamento', 'Natal']
+export const TEMAS = ['Floral', 'Frutas', 'Delicado', 'Nomes', 'Casamento', 'Datas especiais']
 
 export const OCASIOES = [
   { id: 'aniversario', nome: 'Aniversário' },
+  { id: 'maes', nome: 'Para a mãe' },
   { id: 'casamento', nome: 'Casamento' },
   { id: 'padrinhos', nome: 'Padrinhos' },
   { id: 'corporativo', nome: 'Corporativo' },
 ]
-
-export const STATUS_ANALISE = {
-  em_analise: { nome: 'Em análise', cor: 'bg-mel/20 text-argila' },
-  aprovado: { nome: 'Aprovado', cor: 'bg-salvia-clara text-salvia' },
-  ajuste_sugerido: { nome: 'Ajuste sugerido', cor: 'bg-rosa/40 text-terracota-escuro' },
-  recusado: { nome: 'Recusado', cor: 'bg-linho text-cinza' },
-  convertido: { nome: 'Virou pedido', cor: 'bg-terracota/15 text-terracota-escuro' },
-}
 
 export const ETAPAS = [
   { id: 'novo', nome: 'Novo' },
@@ -77,5 +67,4 @@ export const ETAPAS = [
   { id: 'enviado', nome: 'Enviado' },
 ]
 
-export const nomeCategoria = (id) => CATEGORIAS.find((c) => c.id === id)?.nome || id
 export const nomeMaterial = (id) => MATERIAIS.find((c) => c.id === id)?.nome || id

@@ -7,6 +7,7 @@ import { Carregando, Vazio } from '../../components/ui'
 
 const TEXTOS = {
   aniversario: 'Nome, data e a flor preferida de quem faz aniversário.',
+  maes: 'Tulipas, margaridas e cosmos para a mãe, com o nome dela em caligrafia.',
   casamento: 'Taças dos noivos, lembrancinhas para os convidados e presentes de bodas.',
   padrinhos: 'Convites para padrinhos que viram lembrança para sempre.',
   corporativo: 'Brindes de fim de ano e boas-vindas com a cara da sua empresa.',
@@ -22,7 +23,7 @@ export default function Presentes() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <p className="font-mao text-2xl text-terracota">ideias para presente</p>
+      <p className="font-mao text-2xl text-rosa">ideias para presente</p>
       <h1 className="text-3xl sm:text-4xl">{OCASIOES.find((o) => o.id === atual)?.nome}</h1>
       <p className="mt-1 text-cinza">{TEXTOS[atual]}</p>
       <div className="rolagem-fina mt-5 flex gap-2 overflow-x-auto pb-1">
@@ -41,12 +42,12 @@ export default function Presentes() {
               const m = modeloDe(a)
               if (!m) return null
               return (
-                <Link key={a.id} to={`/modelo/${m.id}?arte=${a.id}`} className="overflow-hidden rounded-3xl bg-white ring-1 ring-linho/70 transition hover:-translate-y-0.5 hover:shadow-lg">
-                  <div className="aspect-[4/5] bg-areia/60 p-3">{a.fotos?.[0] ? <img src={a.fotos[0]} alt="" className="size-full rounded-2xl object-cover" /> : <MiniaturaArte arte={a} modelo={m} pers={{ nome: 'Ana & Léo', data: '2026-11-21' }} />}</div>
+                <Link key={a.id} to={`/modelo/${m.id}?arte=${a.id}`} className="overflow-hidden rounded-3xl bg-white ring-1 ring-borda/70 transition hover:-translate-y-0.5 hover:shadow-lg">
+                  <div className="aspect-[4/5] bg-petala/60 p-3">{a.fotos?.[0] ? <img src={a.fotos[0]} alt="" className="size-full rounded-2xl object-cover" /> : <MiniaturaArte arte={a} modelo={m} pers={{ nome: 'Ana & Léo', data: '2026-11-21' }} />}</div>
                   <div className="p-4">
                     <p className="titulo text-lg">{a.nome}</p>
                     <p className="text-xs text-cinza">
-                      {m.nome} · a partir de {moeda(Number(m.preco_base) + Number(a.acrescimo))}
+                      {m.nome}, a partir de {moeda(Number(m.preco_base) + Number(a.acrescimo))}
                     </p>
                   </div>
                 </Link>

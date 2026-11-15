@@ -77,7 +77,7 @@ export default function ArteForm() {
         acao={
           <div className="flex gap-2">
             {!nova && (
-              <button type="button" onClick={excluir} className="btn-fantasma text-terracota">
+              <button type="button" onClick={excluir} className="btn-fantasma text-rosa">
                 <Trash2 className="size-4" /> Excluir
               </button>
             )}
@@ -105,10 +105,10 @@ export default function ArteForm() {
         </Campo>
         <div className="flex flex-wrap gap-4 sm:col-span-2 lg:col-span-4">
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={a.ativo} onChange={set('ativo')} className="size-4 accent-terracota" /> Visível no site
+            <input type="checkbox" checked={a.ativo} onChange={set('ativo')} className="size-4 accent-rosa" /> Visível no site
           </label>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={a.mais_vendida} onChange={set('mais_vendida')} className="size-4 accent-terracota" /> Destaque
+            <input type="checkbox" checked={a.mais_vendida} onChange={set('mais_vendida')} className="size-4 accent-rosa" /> Destaque
           </label>
           <label className="flex items-center gap-2 text-sm">
             Cor principal padrão
@@ -166,7 +166,7 @@ export default function ArteForm() {
               ['cor', 'Cor predominante'],
             ].map(([k, n]) => (
               <label key={k} className="flex items-center gap-2">
-                <input type="checkbox" className="size-4 accent-terracota" checked={a.personalizavel?.[k] !== false} onChange={(e) => setA({ ...a, personalizavel: { ...a.personalizavel, [k]: e.target.checked } })} /> {n}
+                <input type="checkbox" className="size-4 accent-rosa" checked={a.personalizavel?.[k] !== false} onChange={(e) => setA({ ...a, personalizavel: { ...a.personalizavel, [k]: e.target.checked } })} /> {n}
               </label>
             ))}
           </div>

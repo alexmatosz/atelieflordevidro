@@ -3,7 +3,7 @@ import { Group, Image as KImage, Layer, Rect, Stage, Text, TextPath, Transformer
 import { ArrowDown, ArrowUp, Copy, ImagePlus, RotateCcw, Trash2, Type } from 'lucide-react'
 import { areaDoModelo } from './Peca'
 import { atributos, carregarImagem, fundoSrc, garantirFontes, srcObjeto } from '../lib/konva'
-import { CORES_TINTA, FONTES, GRUPOS_ELEMENTOS, dataUrlSvg, svgElemento } from '../lib/elementos'
+import { CORES_TINTA, FONTES, GRUPOS_ELEMENTOS, dataUrlSvg, svgElemento, temCor } from '../lib/elementos'
 import { ALTURA, LARGURA, areaEmPixels, novoId } from '../lib/pecas'
 import { db } from '../lib/db'
 import { useApp } from '../lib/app'
@@ -47,7 +47,7 @@ function No({ obj, area, pers, corPadrao, selecionado, aoSelecionar, aoMudar, re
       else patch.s = Math.max(0.04, (obj.s || 0.3) * fator)
       aoMudar(patch)
     },
-    shadowColor: selecionado ? '#b4673f' : undefined,
+    shadowColor: selecionado ? '#a45c74' : undefined,
   }
 
   if (at.forma === 'texto') return <Text {...at} {...comum} />
@@ -137,29 +137,29 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
     try {
       const src = await db.enviarImagem(arq, modoAdmin ? 'artes' : 'clientes')
       const img = await carregarImagem(src)
-      adicionar({ tipo: 'imagem', src, s: 0.5, ar: img ? img.height / img.width : 1 })
+      adicionar({ tipo: 'imagem', nome: 'imagem enviada', src, s: 0.5, ar: img ? img.height / img.width : 1 })
     } catch (err) {
       notificar(err.message, 'erro')
     }
   }
 
-  const cores = modoAdmin ? ['principal', ...CORES_TINTA] : CORES_TINTA
-  const corVisivel = (c) => (c === 'principal' ? desenho?.cor || '#c94f6d' : c)
+  const cores = modoAdmin ? [{ cor: 'principal', nome: 'cor principal (a cliente escolhe)' }, ...CORES_TINTA] : CORES_TINTA
+  const corVisivel = (c) => (c === 'principal' ? desenho?.cor || '#d9708b' : c)
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
       <div>
         <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="inline-flex rounded-full bg-areia p-1">
+          <div className="inline-flex rounded-full bg-petala p-1">
             {['frente', 'verso'].map((l) => (
-              <button key={l} type="button" onClick={() => setLado(l)} className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize ${lado === l ? 'bg-white text-terracota shadow-sm' : 'text-argila'}`}>
+              <button key={l} type="button" onClick={() => setLado(l)} className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize ${lado === l ? 'bg-white text-rosa shadow-sm' : 'text-ameixa'}`}>
                 {l}
               </button>
             ))}
           </div>
           <span className="text-xs text-cinza">Arraste, gire e redimensione</span>
         </div>
-        <div ref={caixa} className="mx-auto w-full max-w-[460px] overflow-hidden rounded-3xl bg-areia/60 textura">
+        <div ref={caixa} className="mx-auto w-full max-w-[460px] overflow-hidden rounded-3xl bg-petala/60">
           <Stage
             width={largura}
             height={(largura * ALTURA) / LARGURA}
@@ -170,13 +170,13 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
           >
             <Layer>
               {fundo && <KImage image={fundo} x={0} y={0} width={LARGURA} height={ALTURA} listening={false} />}
-              <Rect x={a.x} y={a.y} width={a.w} height={a.h} stroke="#b4673f" strokeWidth={1.5} dash={[7, 6]} cornerRadius={6} opacity={0.75} onMouseDown={() => setSel(null)} onTap={() => setSel(null)} fill="rgba(180,103,63,0.03)" />
+              <Rect x={a.x} y={a.y} width={a.w} height={a.h} stroke="#a45c74" strokeWidth={1.5} dash={[7, 6]} cornerRadius={6} opacity={0.75} onMouseDown={() => setSel(null)} onTap={() => setSel(null)} fill="rgba(164,92,116,0.03)" />
               <Group clipX={a.x} clipY={a.y} clipWidth={a.w} clipHeight={a.h}>
                 {objetos.map((o) => (
                   <No key={o.id} obj={o} area={area} pers={pers} corPadrao={desenho?.cor} selecionado={o.id === sel} aoSelecionar={setSel} aoMudar={(p) => mudarObj(o.id, p)} registrar={registrar} />
                 ))}
               </Group>
-              <Transformer ref={trRef} rotationSnaps={[0, 90, 180, 270]} keepRatio enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']} anchorStroke="#b4673f" borderStroke="#b4673f" anchorSize={12} anchorCornerRadius={6} />
+              <Transformer ref={trRef} rotationSnaps={[0, 90, 180, 270]} keepRatio enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']} anchorStroke="#a45c74" borderStroke="#a45c74" anchorSize={12} anchorCornerRadius={6} />
             </Layer>
           </Stage>
         </div>
@@ -187,7 +187,7 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
         <section className="cartao space-y-3 p-4">
           <p className="rotulo !mb-0">Adicionar</p>
           <div className="grid grid-cols-2 gap-2">
-            <button type="button" className="btn-secundario !px-3" onClick={() => adicionar({ tipo: 'texto', texto: modoAdmin ? '{nome}' : 'Seu texto', fonte: 'Dancing Script', cor: modoAdmin ? 'principal' : '#2f2622', t: 0.16, curva: 0 })}>
+            <button type="button" className="btn-secundario !px-3" onClick={() => adicionar({ tipo: 'texto', texto: modoAdmin ? '{nome}' : 'Seu texto', fonte: 'Allura', cor: '#3b3436', t: 0.2, curva: 0 })}>
               <Type className="size-4" /> Texto
             </button>
             <label className="btn-secundario cursor-pointer !px-3">
@@ -212,10 +212,10 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
                       key={e.id}
                       type="button"
                       title={e.nome}
-                      onClick={() => adicionar(e.imagem ? { tipo: 'imagem', src: e.imagem, s: 0.3, ar: 1 } : { tipo: 'elemento', svg: e.svg, cor: modoAdmin ? 'principal' : '#b4673f', s: 0.3 })}
-                      className="aspect-square rounded-xl border border-linho bg-white p-1.5 hover:border-terracota"
+                      onClick={() => adicionar(e.imagem ? { tipo: 'imagem', nome: e.nome, src: e.imagem, s: 0.3, ar: 1 } : { tipo: 'elemento', nome: e.nome, svg: e.svg, cor: e.cor || '#d9708b', s: 0.3 })}
+                      className="aspect-square rounded-xl border border-borda bg-white p-1.5 hover:border-rosa"
                     >
-                      <img src={e.imagem || dataUrlSvg(svgElemento(e.svg, '#b4673f'))} alt={e.nome} className="size-full object-contain" />
+                      <img src={e.imagem || dataUrlSvg(svgElemento(e.svg, e.cor))} alt={e.nome} className="size-full object-contain" />
                     </button>
                   ))}
               </div>
@@ -233,19 +233,19 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
             <div className="flex items-center justify-between">
               <p className="rotulo !mb-0">{atual.tipo === 'texto' ? 'Texto selecionado' : atual.tipo === 'imagem' ? 'Imagem selecionada' : 'Elemento selecionado'}</p>
               <div className="flex gap-0.5">
-                <button type="button" onClick={() => mover(1)} className="rounded-lg p-1.5 hover:bg-areia" title="Trazer para frente" aria-label="Trazer para frente">
+                <button type="button" onClick={() => mover(1)} className="rounded-lg p-1.5 hover:bg-petala" title="Trazer para frente" aria-label="Trazer para frente">
                   <ArrowUp className="size-4" />
                 </button>
-                <button type="button" onClick={() => mover(-1)} className="rounded-lg p-1.5 hover:bg-areia" title="Mandar para trás" aria-label="Mandar para trás">
+                <button type="button" onClick={() => mover(-1)} className="rounded-lg p-1.5 hover:bg-petala" title="Mandar para trás" aria-label="Mandar para trás">
                   <ArrowDown className="size-4" />
                 </button>
-                <button type="button" onClick={duplicar} className="rounded-lg p-1.5 hover:bg-areia" title="Duplicar" aria-label="Duplicar">
+                <button type="button" onClick={duplicar} className="rounded-lg p-1.5 hover:bg-petala" title="Duplicar" aria-label="Duplicar">
                   <Copy className="size-4" />
                 </button>
-                <button type="button" onClick={() => mudarObj(atual.id, { rot: 0 })} className="rounded-lg p-1.5 hover:bg-areia" title="Endireitar" aria-label="Endireitar">
+                <button type="button" onClick={() => mudarObj(atual.id, { rot: 0 })} className="rounded-lg p-1.5 hover:bg-petala" title="Endireitar" aria-label="Endireitar">
                   <RotateCcw className="size-4" />
                 </button>
-                <button type="button" onClick={remover} className="rounded-lg p-1.5 text-terracota hover:bg-rosa/30" title="Excluir" aria-label="Excluir">
+                <button type="button" onClick={remover} className="rounded-lg p-1.5 text-rosa hover:bg-blush/30" title="Excluir" aria-label="Excluir">
                   <Trash2 className="size-4" />
                 </button>
               </div>
@@ -263,33 +263,33 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
                 </select>
                 <label className="block text-xs text-cinza">
                   Tamanho
-                  <input type="range" min="0.04" max="0.4" step="0.01" value={atual.t || 0.12} onChange={(e) => mudarObj(atual.id, { t: Number(e.target.value) })} className="w-full accent-terracota" />
+                  <input type="range" min="0.04" max="0.4" step="0.01" value={atual.t || 0.12} onChange={(e) => mudarObj(atual.id, { t: Number(e.target.value) })} className="w-full accent-rosa" />
                 </label>
                 <label className="block text-xs text-cinza">
                   Curvatura {atual.curva ? `(${atual.curva > 0 ? 'arco' : 'sorriso'})` : '(reto)'}
-                  <input type="range" min="-100" max="100" step="5" value={atual.curva || 0} onChange={(e) => mudarObj(atual.id, { curva: Number(e.target.value) })} className="w-full accent-terracota" />
+                  <input type="range" min="-100" max="100" step="5" value={atual.curva || 0} onChange={(e) => mudarObj(atual.id, { curva: Number(e.target.value) })} className="w-full accent-rosa" />
                 </label>
               </>
             )}
 
-            {atual.tipo !== 'imagem' && (
+            {(atual.tipo === 'texto' || (atual.tipo === 'elemento' && temCor(atual.svg))) && (
               <div>
                 <p className="mb-1.5 text-xs text-cinza">Cor da tinta</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {cores.map((c) => (
+                  {cores.map(({ cor: c, nome }) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => mudarObj(atual.id, { cor: c })}
-                      className={`size-7 rounded-full border-2 ${atual.cor === c ? 'border-tinta' : 'border-white'} shadow-sm ring-1 ring-linho`}
+                      className={`size-7 rounded-full border-2 ${atual.cor === c ? 'border-grafite' : 'border-white'} ring-1 ring-borda`}
                       style={{ background: corVisivel(c) }}
-                      title={c === 'principal' ? 'Cor principal (escolhida pelo cliente)' : c}
-                      aria-label={c === 'principal' ? 'Cor principal' : `Cor ${c}`}
+                      title={nome}
+                      aria-label={`Cor ${nome}`}
                     >
                       {c === 'principal' && <span className="text-[10px] font-bold text-white">P</span>}
                     </button>
                   ))}
-                  <input type="color" value={atual.cor?.startsWith('#') ? atual.cor : '#b4673f'} onChange={(e) => mudarObj(atual.id, { cor: e.target.value })} className="size-7 cursor-pointer rounded-full border-0 bg-transparent p-0" aria-label="Outra cor" />
+                  <input type="color" value={atual.cor?.startsWith('#') ? atual.cor : '#d9708b'} onChange={(e) => mudarObj(atual.id, { cor: e.target.value })} className="size-7 cursor-pointer rounded-full border-0 bg-transparent p-0" aria-label="Outra cor" />
                 </div>
               </div>
             )}
@@ -297,16 +297,16 @@ export default function EditorArte({ modelo, desenho, aoMudar, elementos = [], p
             {atual.tipo !== 'texto' && (
               <label className="block text-xs text-cinza">
                 Tamanho
-                <input type="range" min="0.06" max="1" step="0.01" value={atual.s || 0.3} onChange={(e) => mudarObj(atual.id, { s: Number(e.target.value) })} className="w-full accent-terracota" />
+                <input type="range" min="0.06" max="1" step="0.01" value={atual.s || 0.3} onChange={(e) => mudarObj(atual.id, { s: Number(e.target.value) })} className="w-full accent-rosa" />
               </label>
             )}
             <label className="block text-xs text-cinza">
               Giro
-              <input type="range" min="-180" max="180" step="1" value={atual.rot || 0} onChange={(e) => mudarObj(atual.id, { rot: Number(e.target.value) })} className="w-full accent-terracota" />
+              <input type="range" min="-180" max="180" step="1" value={atual.rot || 0} onChange={(e) => mudarObj(atual.id, { rot: Number(e.target.value) })} className="w-full accent-rosa" />
             </label>
           </section>
         ) : (
-          <p className="rounded-2xl border border-dashed border-linho px-4 py-5 text-center text-sm text-cinza">Toque em um item do desenho para editar cor, tamanho e posição.</p>
+          <p className="rounded-2xl border border-dashed border-borda px-4 py-5 text-center text-sm text-cinza">Toque em um item do desenho para editar cor, tamanho e posição.</p>
         )}
       </div>
     </div>

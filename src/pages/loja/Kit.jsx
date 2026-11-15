@@ -46,14 +46,14 @@ export default function Kit() {
     try {
       const { exportarPng } = await import('../../lib/konva')
       for (const l of linhas) {
-        const mockup = await exportarPng(l.modelo, arte.desenho, 'frente', pers, 360)
+        const mockup = await exportarPng(l.modelo, arte.desenho, 'frente', pers, 480)
         adicionarAoCarrinho({
           tipo: 'kit',
           kit_id: kit.id,
           kit_nome: kit.nome,
           modelo_id: l.modelo.id,
           arte_id: arte.id,
-          descricao: `${l.modelo.nome} · ${arte.nome}`,
+          descricao: `${l.modelo.nome}, arte ${arte.nome}`,
           personalizacao: pers,
           mockup,
           quantidade: l.quantidade,
@@ -61,7 +61,7 @@ export default function Kit() {
           prazo: l.modelo.prazo_producao_dias,
         })
       }
-      notificar('Kit adicionado ao carrinho.')
+      notificar('Kit na sacola.')
       nav('/carrinho')
     } catch (err) {
       notificar(err.message, 'erro')
@@ -72,23 +72,23 @@ export default function Kit() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <p className="font-mao text-2xl text-terracota">tudo combinando</p>
+      <p className="font-mao text-2xl text-rosa">tudo combinando</p>
       <h1 className="text-3xl sm:text-4xl">Monte um kit</h1>
       <p className="mt-1 text-cinza">Peças diferentes com a mesma arte, com desconto de kit.</p>
 
       <div className="rolagem-fina mt-6 flex gap-3 overflow-x-auto pb-2">
         {d.kits.map((k) => (
-          <button key={k.id} onClick={() => setKitId(k.id)} className={`w-60 shrink-0 rounded-2xl border-2 p-4 text-left transition ${k.id === kitId ? 'border-terracota bg-white' : 'border-linho bg-white/60'}`}>
+          <button key={k.id} onClick={() => setKitId(k.id)} className={`w-60 shrink-0 rounded-2xl border-2 p-4 text-left transition ${k.id === kitId ? 'border-rosa bg-white' : 'border-borda bg-white/60'}`}>
             <p className="titulo text-lg">{k.nome}</p>
             <p className="text-xs text-cinza">{k.composicao.map((c) => `${c.quantidade}× ${modelo(c.modelo_id)?.nome}`).join(' + ')}</p>
-            <span className="selo mt-2 bg-salvia-clara text-salvia">{k.desconto_percentual}% off</span>
+            <span className="selo mt-2 bg-folha-clara text-folha">{k.desconto_percentual}% off</span>
           </button>
         ))}
       </div>
 
       {kit && (
         <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr]">
-          <div className="flex items-end justify-center gap-1 rounded-[2rem] bg-areia/70 p-6 textura">
+          <div className="flex items-end justify-center gap-1 rounded-[2rem] bg-petala/70 p-6">
             {linhas.flatMap((l) => Array.from({ length: Math.min(l.quantidade, 3) }, (_, i) => <Peca key={`${l.modelo_id}-${i}`} modelo={l.modelo} desenho={arte?.desenho} pers={pers} className="w-1/4 max-w-40" />))}
           </div>
           <div className="space-y-6">
@@ -100,8 +100,8 @@ export default function Kit() {
               ) : (
                 <div className="grid grid-cols-4 gap-2">
                   {artes.map((a) => (
-                    <button key={a.id} onClick={() => setArteId(a.id)} className={`overflow-hidden rounded-2xl bg-white ring-2 ${a.id === arteId ? 'ring-terracota' : 'ring-linho/60'}`} title={a.nome}>
-                      <div className="aspect-square bg-areia/50">
+                    <button key={a.id} onClick={() => setArteId(a.id)} className={`overflow-hidden rounded-2xl bg-white ring-2 ${a.id === arteId ? 'ring-rosa' : 'ring-borda/60'}`} title={a.nome}>
+                      <div className="aspect-square bg-petala/50">
                         <MiniaturaArte arte={a} modelo={linhas[0]?.modelo} pers={pers} />
                       </div>
                       <p className="truncate px-1.5 py-1 text-[11px] font-semibold">{a.nome}</p>
@@ -125,12 +125,12 @@ export default function Kit() {
                   <span>{moeda(l.preco * l.quantidade)}</span>
                 </p>
               ))}
-              <div className="flex items-end justify-between border-t border-linho pt-3">
+              <div className="flex items-end justify-between border-t border-borda pt-3">
                 <span className="text-sm text-cinza line-through">{moeda(cheio)}</span>
                 <span className="titulo text-2xl">{moeda(total)}</span>
               </div>
               <button className="btn-primario w-full !py-3 text-base" disabled={!arte || adicionando} onClick={adicionar}>
-                <ShoppingBag className="size-5" /> {adicionando ? 'Preparando…' : 'Adicionar kit ao carrinho'}
+                <ShoppingBag className="size-5" /> {adicionando ? 'Preparando…' : 'Colocar o kit na sacola'}
               </button>
             </div>
             <AvisoArtesanal />

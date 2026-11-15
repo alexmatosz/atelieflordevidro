@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import { ALCAS, ALTURA, AREAS_PADRAO, CONTORNOS, ESTILOS_MATERIAL, LARGURA, PIRES, areaEmPixels, caminhoCurva, corFinal, textoFinal } from '../lib/pecas'
+import { ALCAS, ALTURA, AREAS_PADRAO, CONTORNOS, DETALHES, ESTILOS_MATERIAL, viewBoxAjustado, LARGURA, PIRES, areaEmPixels, caminhoCurva, corFinal, textoFinal } from '../lib/pecas'
 
 export function areaDoModelo(modelo) {
   return modelo?.area_pintavel || AREAS_PADRAO[modelo?.forma || 'caneca']
@@ -50,18 +50,18 @@ export function ObjetoDesenho({ obj, area, pers, corPadrao }) {
   )
 }
 
-export default function Peca({ modelo, lado = 'frente', desenho, pers, mostrarArea = false, className = '', comSombra = true }) {
+export default function Peca({ modelo, lado = 'frente', desenho, pers, mostrarArea = false, className = '', comSombra = true, ajustar = false }) {
   const uid = useId().replace(/:/g, '')
-  const forma = modelo?.forma || 'caneca'
+  const forma = CONTORNOS[modelo?.forma] ? modelo.forma : 'caneca'
   const area = areaDoModelo(modelo)
   const mat = ESTILOS_MATERIAL[modelo?.material] || ESTILOS_MATERIAL.ceramica
   const objetos = desenho?.[lado] || []
-  const espelhar = lado === 'verso' && (forma === 'caneca' || forma === 'xicara')
+  const espelhar = lado === 'verso' && (forma === 'caneca' || forma === 'xicara' || forma === 'jarra')
   const fotoMockup = lado === 'verso' ? modelo?.mockup_verso || modelo?.mockup_frente : modelo?.mockup_frente
   const a = areaEmPixels(area)
 
   return (
-    <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} className={className} role="img" aria-label={`${modelo?.nome || 'Peça'} — ${lado}`}>
+    <svg viewBox={ajustar && !fotoMockup ? viewBoxAjustado(forma) : `0 0 ${LARGURA} ${ALTURA}`} className={className} role="img" aria-label={`${modelo?.nome || 'Peça'} — ${lado}`}>
       <defs>
         <linearGradient id={`g-${uid}`} x1="0" x2="1">
           <stop offset="0" stopColor={mat.base} />
@@ -88,7 +88,8 @@ export default function Peca({ modelo, lado = 'frente', desenho, pers, mostrarAr
           {forma === 'xicara' && <path d={PIRES} fill={`url(#g-${uid})`} stroke={mat.borda} strokeWidth="2" />}
           {ALCAS[forma] && <path d={ALCAS[forma]} fill={`url(#g-${uid})`} stroke={mat.borda} strokeWidth="2" opacity={mat.opacidade < 1 ? 0.8 : 1} />}
           <path d={CONTORNOS[forma]} fill={`url(#g-${uid})`} fillOpacity={mat.opacidade} stroke={mat.borda} strokeWidth="2.5" />
-          {forma === 'garrafa' && <rect x="166" y="14" width="68" height="34" rx="8" fill={modelo?.material === 'inox' ? '#6d7276' : '#b4673f'} />}
+          {DETALHES[forma] && <g dangerouslySetInnerHTML={{ __html: DETALHES[forma].replaceAll('BORDA', mat.borda).replaceAll('TAMPA', modelo?.material === 'inox' ? '#8d9295' : '#c9a35b') }} />}
+          {forma === 'garrafa' && <rect x="166" y="14" width="68" height="34" rx="8" fill={modelo?.material === 'inox' ? '#6d7276' : '#a45c74'} />}
           {(forma === 'caneca' || forma === 'copo' || forma === 'xicara') && (
             <ellipse cx="200" cy={forma === 'caneca' ? 92 : forma === 'copo' ? 66 : 168} rx={forma === 'xicara' ? 100 : forma === 'copo' ? 112 : 104} ry="10" fill={mat.base} opacity=".6" stroke={mat.borda} strokeWidth="2" />
           )}
@@ -107,7 +108,7 @@ export default function Peca({ modelo, lado = 'frente', desenho, pers, mostrarAr
       )}
 
       {mostrarArea && (
-        <rect x={a.x} y={a.y} width={a.w} height={a.h} rx="6" fill="none" stroke="#b4673f" strokeWidth="2" strokeDasharray="7 6" opacity=".8" />
+        <rect x={a.x} y={a.y} width={a.w} height={a.h} rx="6" fill="none" stroke="#a45c74" strokeWidth="2" strokeDasharray="7 6" opacity=".8" />
       )}
     </svg>
   )
@@ -115,5 +116,5 @@ export default function Peca({ modelo, lado = 'frente', desenho, pers, mostrarAr
 
 export function MiniaturaArte({ arte, modelo, pers }) {
   const m = modelo || { forma: 'caneca', material: 'ceramica', area_pintavel: AREAS_PADRAO.caneca }
-  return <Peca modelo={m} desenho={arte?.desenho} pers={pers} className="h-full w-full" comSombra={false} />
+  return <Peca modelo={m} desenho={arte?.desenho} pers={pers} className="h-full w-full" comSombra={false} ajustar />
 }

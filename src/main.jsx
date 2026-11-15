@@ -9,11 +9,6 @@ import Inicio from './pages/loja/Inicio'
 import Catalogo from './pages/loja/Catalogo'
 import ModeloPagina from './pages/loja/Modelo'
 import Carrinho from './pages/loja/Carrinho'
-import Checkout from './pages/loja/Checkout'
-import Entrar from './pages/loja/Entrar'
-import MinhaConta from './pages/loja/MinhaConta'
-import SolicitacaoPagina from './pages/loja/Solicitacao'
-import PedidoPagina from './pages/loja/Pedido'
 import Kit from './pages/loja/Kit'
 import Presentes from './pages/loja/Presentes'
 import Galeria from './pages/loja/Galeria'
@@ -26,8 +21,6 @@ const ModeloForm = lazy(() => import('./pages/admin/ModeloForm'))
 const Artes = lazy(() => import('./pages/admin/Artes'))
 const ArteForm = lazy(() => import('./pages/admin/ArteForm'))
 const Elementos = lazy(() => import('./pages/admin/Elementos'))
-const Analise = lazy(() => import('./pages/admin/Analise'))
-const AnaliseDetalhe = lazy(() => import('./pages/admin/AnaliseDetalhe'))
 const Pedidos = lazy(() => import('./pages/admin/Pedidos'))
 const Kits = lazy(() => import('./pages/admin/Kits'))
 const GaleriaAdmin = lazy(() => import('./pages/admin/GaleriaAdmin'))
@@ -51,11 +44,6 @@ createRoot(document.getElementById('root')).render(
               <Route path="criar" element={<CrieSuaArte />} />
               <Route path="criar/:modeloId" element={<CrieSuaArte />} />
               <Route path="carrinho" element={<Carrinho />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="entrar" element={<Entrar />} />
-              <Route path="minha-conta" element={<MinhaConta />} />
-              <Route path="solicitacao/:id" element={<SolicitacaoPagina />} />
-              <Route path="pedido/:id" element={<PedidoPagina />} />
               <Route path="kit" element={<Kit />} />
               <Route path="presentes" element={<Presentes />} />
               <Route path="presentes/:ocasiao" element={<Presentes />} />
@@ -72,8 +60,6 @@ createRoot(document.getElementById('root')).render(
               <Route path="artes" element={<Artes />} />
               <Route path="artes/:id" element={<ArteForm />} />
               <Route path="elementos" element={<Elementos />} />
-              <Route path="analise" element={<Analise />} />
-              <Route path="analise/:id" element={<AnaliseDetalhe />} />
               <Route path="pedidos" element={<Pedidos />} />
               <Route path="kits" element={<Kits />} />
               <Route path="galeria" element={<GaleriaAdmin />} />

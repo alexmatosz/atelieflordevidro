@@ -37,8 +37,8 @@ export default function DatasAdmin() {
       />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {ordenadas.map((x) => (
-          <button key={x.id} onClick={() => setEdit(structuredClone(x))} className="cartao flex gap-3 p-4 text-left hover:border-terracota">
-            <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl bg-areia">
+          <button key={x.id} onClick={() => setEdit(structuredClone(x))} className="cartao flex gap-3 p-4 text-left hover:border-rosa">
+            <div className="flex size-14 shrink-0 flex-col items-center justify-center rounded-xl bg-petala">
               <span className="titulo text-xl leading-none">{x.dia}</span>
               <span className="text-xs uppercase text-cinza">{MESES[x.mes - 1]}</span>
             </div>
@@ -92,7 +92,7 @@ export default function DatasAdmin() {
               {edit.id && (
                 <button
                   type="button"
-                  className="btn-fantasma text-terracota"
+                  className="btn-fantasma text-rosa"
                   onClick={async () => {
                     await db.remover('datas_comemorativas', edit.id)
                     setEdit(null)

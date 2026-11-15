@@ -29,15 +29,15 @@ export default function MarcadorArea({ modelo, area, aoMudar }) {
   }
 
   return (
-    <div ref={caixa} className="relative aspect-[4/5] w-full touch-none select-none overflow-hidden rounded-2xl bg-areia/60 textura">
+    <div ref={caixa} className="relative aspect-[4/5] w-full touch-none select-none overflow-hidden rounded-2xl bg-petala/60">
       <Peca modelo={{ ...modelo, area_pintavel: area }} className="absolute inset-0 size-full" />
       <div
         onPointerDown={iniciar('mover')}
-        className="absolute cursor-move rounded-md border-2 border-dashed border-terracota bg-terracota/10"
+        className="absolute cursor-move rounded-md border-2 border-dashed border-rosa bg-rosa/10"
         style={{ left: `${area.x * 100}%`, top: `${area.y * 100}%`, width: `${area.w * 100}%`, height: `${area.h * 100}%` }}
       >
-        <span className="absolute left-1 top-1 rounded bg-terracota px-1.5 py-0.5 text-[10px] font-bold text-white">Área pintável</span>
-        <span onPointerDown={(e) => (e.stopPropagation(), iniciar('redimensionar')(e))} className="absolute -bottom-2 -right-2 size-5 cursor-se-resize rounded-full border-2 border-white bg-terracota shadow" aria-label="Redimensionar" />
+        <span className="absolute left-1 top-1 rounded bg-rosa px-1.5 py-0.5 text-[10px] font-bold text-white">Área pintável</span>
+        <span onPointerDown={(e) => (e.stopPropagation(), iniciar('redimensionar')(e))} className="absolute -bottom-2 -right-2 size-5 cursor-se-resize rounded-full border-2 border-white bg-rosa shadow" aria-label="Redimensionar" />
       </div>
     </div>
   )

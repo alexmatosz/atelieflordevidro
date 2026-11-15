@@ -4,7 +4,7 @@ import { linkEmail, linkWhatsApp } from '../lib/regras'
 export default function AvisarCliente({ whatsapp, email, assunto, texto, titulo = 'Avise o cliente' }) {
   if (!whatsapp && !email) return null
   return (
-    <div className="rounded-2xl border border-salvia/40 bg-salvia-clara/50 p-4">
+    <div className="rounded-2xl border border-folha/40 bg-folha-clara/50 p-4">
       <p className="text-sm font-semibold">{titulo}</p>
       <p className="mt-1 whitespace-pre-line text-xs text-cinza">{texto}</p>
       <div className="mt-3 flex flex-wrap gap-2">

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Building2, Check } from 'lucide-react'
 import { db } from '../../lib/db'
 import { useApp, useDados, useWhats } from '../../lib/app'
-import { mascaraFone } from '../../lib/format'
+import { data as dataBr, mascaraFone } from '../../lib/format'
+import { linkWhatsApp } from '../../lib/regras'
 import { Campo, Carregando, EnviarImagens } from '../../components/ui'
 
 export default function Corporativo() {
@@ -21,7 +22,19 @@ export default function Corporativo() {
     if (Number(f.quantidade) < minimo) return notificar(`O mínimo para empresas é de ${minimo} peças.`, 'erro')
     setEnviando(true)
     try {
-      await db.inserir('pedidos_corporativos', { ...f, modelo_id: f.modelo_id || null, quantidade: Number(f.quantidade), data_desejada: f.data_desejada || null, status: 'novo' })
+      const peca = modelos.find((m) => m.id === f.modelo_id)?.nome || 'ainda não escolhi a peça'
+      const linhas = [
+        `*Empresa:* ${f.empresa}${f.cnpj ? ` (CNPJ ${f.cnpj})` : ''}`,
+        `*Contato:* ${f.contato_nome}${f.contato_email ? `, ${f.contato_email}` : ''}`,
+        `*Peça:* ${peca}`,
+        `*Quantidade:* ${f.quantidade}`,
+        f.data_desejada && `*Para:* ${dataBr(f.data_desejada)}`,
+        f.observacoes && `*Detalhes:* ${f.observacoes}`,
+        f.logo && 'Vou mandar o logo em seguida.',
+      ].filter(Boolean)
+      const texto = ['Olá! Quero um orçamento para a minha empresa ♡', '', ...linhas].join('\n')
+      window.open(linkWhatsApp(config.loja?.whatsapp, texto), '_blank', 'noopener')
+      db.inserir('pedidos_corporativos', { ...f, modelo_id: f.modelo_id || null, quantidade: Number(f.quantidade), data_desejada: f.data_desejada || null, status: 'novo' }).catch(() => {})
       setEnviado(true)
     } catch (err) {
       notificar(err.message, 'erro')
@@ -34,23 +47,23 @@ export default function Corporativo() {
     <div className="mx-auto max-w-5xl px-4 py-8">
       <div className="grid gap-8 md:grid-cols-[1fr_1.3fr]">
         <div>
-          <Building2 className="size-8 text-terracota" />
+          <Building2 className="size-8 text-rosa" />
           <h1 className="mt-2 text-3xl sm:text-4xl">Para empresas</h1>
           <p className="mt-3 text-cinza">Brindes de fim de ano, kits de boas-vindas, eventos. Pintamos o logo ou uma arte da sua marca à mão, peça por peça.</p>
           <ul className="mt-5 space-y-2 text-sm">
             {[`A partir de ${minimo} peças`, 'Orçamento em até 2 dias úteis', 'Mockup para aprovação antes de pintar', 'Nota fiscal'].map((t) => (
               <li key={t} className="flex items-center gap-2">
-                <Check className="size-4 text-salvia" /> {t}
+                <Check className="size-4 text-folha" /> {t}
               </li>
             ))}
           </ul>
-          <p className="mt-5 rounded-2xl bg-areia/70 p-4 text-sm text-cinza">Logos com detalhes muito finos podem ser simplificados para a pintura à mão. O artesão avisa no orçamento.</p>
+          <p className="mt-5 rounded-2xl bg-petala/70 p-4 text-sm text-cinza">Logos com detalhes muito finos podem ser simplificados para a pintura à mão. O artesão avisa no orçamento.</p>
         </div>
         {enviado ? (
           <div className="cartao flex flex-col items-center justify-center p-8 text-center">
-            <p className="font-mao text-3xl text-salvia">recebido!</p>
+            <p className="font-mao text-3xl text-folha">recebido!</p>
             <p className="titulo text-2xl">Vamos preparar seu orçamento</p>
-            <p className="mt-2 text-sm text-cinza">Respondemos pelo WhatsApp ou e-mail informado.</p>
+            <p className="mt-2 text-sm text-cinza">Confira a mensagem no WhatsApp e toque em enviar. Se tiver o logo, mande na mesma conversa.</p>
           </div>
         ) : (
           <form onSubmit={enviar} className="cartao grid gap-4 p-5 sm:grid-cols-2">
@@ -93,7 +106,7 @@ export default function Corporativo() {
               <textarea className="campo min-h-24" value={f.observacoes} onChange={set('observacoes')} placeholder="Cores da marca, frase, se cada peça leva um nome diferente…" />
             </Campo>
             <button className="btn-primario sm:col-span-2" disabled={enviando}>
-              {enviando ? 'Enviando…' : 'Pedir orçamento'}
+              {enviando ? 'Enviando…' : 'Pedir orçamento pelo WhatsApp'}
             </button>
           </form>
         )}

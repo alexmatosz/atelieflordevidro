@@ -1,4 +1,4 @@
-# Ateliê Flor de Vidro — o que fazer
+# Atelier Flor de Vidro — o que fazer
 
 Site de venda de copos, xícaras, taças e garrafas com pintura feita à mão.
 O cliente escolhe um MODELO de peça e uma ARTE, ou cria a própria arte e envia para ANÁLISE do artesão.
@@ -14,10 +14,22 @@ Código: https://github.com/alexmatosz/atelieflordevidro
 - [x] 3. Vitrine do cliente
 - [x] 4. Editor "Crie sua arte"
 - [ ] 5. Ligar no Supabase real (criar projeto, rodar o SQL, colocar as chaves)
-- [ ] 6. Pagamento real (Pix e cartão — Mercado Pago ou Asaas)
-- [ ] 7. Frete real (Melhor Envio ou Correios)
-- [ ] 8. Notificação automática por e-mail e WhatsApp (Edge Function do Supabase)
+- [ ] 6. Pagamento e frete: por enquanto combinados no WhatsApp
+- [ ] 7. Fila de análise de arte (código guardado no histórico do git, desligada por enquanto)
 - [ ] 9. Fotos reais das peças no lugar das ilustrações
+
+## Mudanças de 15/11/2026 (pedido da dona)
+
+- [x] Visual novo a partir da logo e do Instagram: rosa antigo, verde-oliva, dourado, molduras em arco, fontes Gilda Display, Jost e Allura
+- [x] Biblioteca de desenhos da moda: limão siciliano, fatia de limão, cerejas, morango, tulipas, cosmos, girassol, margarida, lavanda, florzinhas com pontinhos dourados, lacinho, corações, borboleta, poá, xadrez vichy, folhagens
+- [x] Desenhos editáveis no painel (nome, grupo, cor padrão, ocultar, subir PNG novo)
+- [x] Categorias editáveis no painel e formatos novos de peça: pires, jarra, pote com tampa
+- [x] Pedido fechado pelo WhatsApp: a sacola monta a mensagem com tudo (peça, arte, nome, frase, data, cor, desenhos usados, observações, quantidade, valores) e um código AFV-XXXX
+- [x] Botão para mandar as imagens das artes (compartilhar no celular ou baixar no computador)
+- [x] "Crie sua arte" vai direto para a sacola, com valor "a partir de" e o final combinado no WhatsApp
+- [x] Comprador não tem mais login. O painel fica escondido em /#/admin, com login próprio
+- [x] No painel, "Registrar pedido": cola a mensagem do WhatsApp e o pedido entra no kanban
+- [x] Pedidos de empresas também saem pelo WhatsApp
 
 ## Como o site funciona hoje
 
@@ -25,7 +37,7 @@ Sem as chaves do Supabase, o site roda em **modo demonstração**: tudo fica sal
 de quem está olhando (localStorage), com um catálogo de exemplo. Serve para ver e testar o fluxo inteiro.
 Com as chaves, passa a usar o banco, o login e o armazenamento de imagens do Supabase.
 
-Entrar como vendedor no modo demonstração: tela "Entrar" → "Entrar como vendedor".
+Painel do ateliê: abrir https://alexmatosz.github.io/atelieflordevidro/#/admin (não aparece para as clientes).
 
 ## ÁREA DO CLIENTE
 

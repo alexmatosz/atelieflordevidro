@@ -30,7 +30,7 @@ create table if not exists modelos (
   id uuid primary key default gen_random_uuid(),
   nome text not null,
   slug text unique,
-  categoria text not null check (categoria in ('copos', 'canecas', 'tacas', 'garrafas')),
+  categoria text not null,
   descricao text default '',
   fotos text[] not null default '{}',
   altura_cm numeric,
@@ -73,6 +73,7 @@ create table if not exists elementos_editor (
   grupo text not null default 'flores',
   imagem text,
   svg text,
+  cor text,
   ativo boolean not null default true,
   criado_em timestamptz not null default now()
 );
@@ -110,6 +111,8 @@ create sequence if not exists serie_peca start 1;
 create table if not exists pedidos (
   id uuid primary key default gen_random_uuid(),
   numero serial unique,
+  codigo text,
+  resumo text,
   cliente_id uuid references auth.users(id) on delete set null,
   cliente_nome text not null,
   cliente_email text,
@@ -130,7 +133,7 @@ create table if not exists pedidos (
   foto_aprovada_cliente boolean,
   autoriza_galeria boolean not null default false,
   codigo_rastreio text,
-  origem text not null default 'loja' check (origem in ('loja', 'analise', 'kit', 'corporativo')),
+  origem text not null default 'whatsapp' check (origem in ('loja', 'whatsapp', 'analise', 'kit', 'corporativo')),
   criado_em timestamptz not null default now()
 );
 
@@ -216,11 +219,12 @@ create table if not exists configuracoes (
 );
 
 insert into configuracoes (chave, valor) values
-  ('loja', '{"nome":"Ateliê Flor de Vidro","whatsapp":"5511999999999","email":"","instagram":"","cidade":"","cep_origem":""}'),
+  ('loja', '{"nome":"Atelier Flor de Vidro","whatsapp":"554896273495","email":"","instagram":"atelieflordevidro","cidade":"Sombrio, SC","pix_chave":"","pix_nome":""}'),
   ('frete', '{"gratis_acima":350,"faixas":[{"regiao":"Mesma cidade","prefixos":[],"valor":15,"dias":2},{"regiao":"Sudeste","prefixos":["0","1","2","3"],"valor":25,"dias":5},{"regiao":"Sul","prefixos":["8","9"],"valor":32,"dias":7},{"regiao":"Centro-Oeste","prefixos":["7"],"valor":38,"dias":8},{"regiao":"Nordeste","prefixos":["4","5","6"],"valor":42,"dias":10}]}'),
   ('descontos', '{"faixas":[{"minimo":6,"percentual":5},{"minimo":12,"percentual":10},{"minimo":30,"percentual":15},{"minimo":50,"percentual":20}]}'),
   ('textos', '{"sobre":"","aviso_artesanal":"Por ser pintura à mão, podem existir pequenas variações. Isso torna sua peça única.","trocas":""}'),
-  ('corporativo', '{"quantidade_minima":20}')
+  ('corporativo', '{"quantidade_minima":20}'),
+  ('categorias', '{"lista":[{"id":"tacas","nome":"Taças","forma":"taca"},{"id":"canecas","nome":"Xícaras e canecas","forma":"caneca"},{"id":"copos","nome":"Copos","forma":"copo"},{"id":"garrafas","nome":"Garrafas","forma":"garrafa"},{"id":"pires","nome":"Pires e pratos","forma":"pires"}]}')
 on conflict (chave) do nothing;
 
 alter table perfis enable row level security;

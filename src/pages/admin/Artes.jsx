@@ -41,8 +41,8 @@ export default function Artes() {
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
           {lista.map((a) => (
-            <Link key={a.id} to={`/admin/artes/${a.id}`} className={`cartao overflow-hidden transition hover:border-terracota ${a.ativo ? '' : 'opacity-60'}`}>
-              <div className="aspect-[4/5] bg-areia/60 p-2">{a.fotos?.[0] ? <img src={a.fotos[0]} alt="" className="size-full rounded-xl object-cover" /> : <MiniaturaArte arte={a} />}</div>
+            <Link key={a.id} to={`/admin/artes/${a.id}`} className={`cartao overflow-hidden transition hover:border-rosa ${a.ativo ? '' : 'opacity-60'}`}>
+              <div className="aspect-[4/5] bg-petala/60 p-2">{a.fotos?.[0] ? <img src={a.fotos[0]} alt="" className="size-full rounded-xl object-cover" /> : <MiniaturaArte arte={a} />}</div>
               <div className="p-3">
                 <p className="truncate font-semibold">{a.nome}</p>
                 <p className="text-xs text-cinza">

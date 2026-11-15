@@ -3,7 +3,7 @@ import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import Peca, { areaDoModelo } from '../components/Peca'
 import { dataUrlSvg, svgElemento } from './elementos'
-import { ALTURA, LARGURA, areaEmPixels, caminhoCurva, corFinal, textoFinal } from './pecas'
+import { ALTURA, LARGURA, RECORTES, areaEmPixels, caminhoCurva, corFinal, textoFinal } from './pecas'
 
 const cache = new Map()
 
@@ -75,7 +75,7 @@ export async function exportarPng(modelo, desenho, lado, pers, largura = 640) {
   const stage = new Konva.Stage({ container: div, width: LARGURA * escala, height: ALTURA * escala, scaleX: escala, scaleY: escala })
   const camada = new Konva.Layer()
   stage.add(camada)
-  camada.add(new Konva.Rect({ x: 0, y: 0, width: LARGURA, height: ALTURA, fill: '#f8f3ec' }))
+  camada.add(new Konva.Rect({ x: 0, y: 0, width: LARGURA, height: ALTURA, fill: '#f7e6e6' }))
   const fundo = await carregarImagem(fundoSrc(modelo, lado))
   if (fundo) camada.add(new Konva.Image({ image: fundo, x: 0, y: 0, width: LARGURA, height: ALTURA }))
   const a = areaEmPixels(area)
@@ -91,7 +91,11 @@ export async function exportarPng(modelo, desenho, lado, pers, largura = 640) {
     }
   }
   camada.draw()
-  const url = stage.toDataURL({ mimeType: 'image/jpeg', quality: 0.86 })
+  const foto = lado === 'verso' ? modelo?.mockup_verso || modelo?.mockup_frente : modelo?.mockup_frente
+  const corte = !foto && RECORTES[modelo?.forma]
+  const m = 18
+  const recorte = corte ? { x: (corte[0] - m) * escala, y: (corte[1] - m) * escala, width: (corte[2] + 2 * m) * escala, height: (corte[3] + 2 * m) * escala } : {}
+  const url = stage.toDataURL({ mimeType: 'image/jpeg', quality: 0.88, ...recorte })
   stage.destroy()
   return url
 }
