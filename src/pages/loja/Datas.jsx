@@ -23,7 +23,7 @@ export default function Datas() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <p className="font-mao text-2xl text-rosa">calendário do ateliê</p>
+      <p className="sobretitulo">Calendário do ateliê</p>
       <h1 className="text-3xl sm:text-4xl">Datas comemorativas</h1>
       <p className="mt-1 text-cinza">A pintura à mão leva alguns dias. Encomende com pelo menos 3 semanas de folga.</p>
       <div className="mt-6 space-y-4">

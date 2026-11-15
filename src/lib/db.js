@@ -1,5 +1,6 @@
 import { ARTES, CONFIG_PADRAO, DATAS, KITS, MODELOS } from './seed'
 import { ELEMENTOS_PADRAO } from './elementos'
+import { promocoesDemo } from './promocoes'
 
 const URL = import.meta.env.VITE_SUPABASE_URL
 const CHAVE = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -41,6 +42,7 @@ function semearLocal() {
     gravarLocal('artes', ARTES)
     gravarLocal('elementos_editor', ELEMENTOS_PADRAO.map((e) => ({ ...e, ativo: true })))
     gravarLocal('kits', KITS)
+    gravarLocal('promocoes', promocoesDemo())
     gravarLocal('datas_comemorativas', DATAS)
     gravarLocal('configuracoes', Object.entries(CONFIG_PADRAO).map(([chave, valor]) => ({ chave, valor })))
     for (const t of ['solicitacoes_analise', 'pedidos', 'itens_pedido', 'galeria_clientes', 'pedidos_corporativos']) gravarLocal(t, [])
@@ -50,7 +52,14 @@ function semearLocal() {
   }
 }
 
-if (MODO_DEMO) semearLocal()
+if (MODO_DEMO) {
+  semearLocal()
+  try {
+    if (localStorage.getItem(PREFIXO + 'promocoes') == null) gravarLocal('promocoes', promocoesDemo())
+  } catch {
+    void 0
+  }
+}
 
 export function reiniciarDemo() {
   Object.keys(localStorage)

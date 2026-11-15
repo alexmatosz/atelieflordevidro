@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Loader2, Upload, X } from 'lucide-react'
 import { db } from '../lib/db'
-import { useApp } from '../lib/app'
+import { precoDoModelo, useApp } from '../lib/app'
+import { Carrossel, Contagem, Preco, SeloPromo } from './vitrine'
 import Peca from './Peca'
-import { moeda } from '../lib/format'
 
 export function Carregando({ texto = 'Carregando…' }) {
   return (
@@ -43,8 +43,8 @@ export function Modal({ aberto, aoFechar, titulo, children, largura = 'max-w-lg'
   }, [aberto, aoFechar])
   if (!aberto) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-grafite/40 p-0 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && aoFechar()}>
-      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={titulo} className={`max-h-[92dvh] w-full ${largura} overflow-y-auto rounded-t-3xl bg-papel p-5 shadow-xl outline-none sm:rounded-3xl sm:p-6`}>
+    <div className="fixed inset-0 z-50 flex animate-esmaecer items-end justify-center bg-grafite/40 p-0 sm:items-center sm:p-4" onMouseDown={(e) => e.target === e.currentTarget && aoFechar()}>
+      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={titulo} className={`max-h-[92dvh] w-full ${largura} animate-folha overflow-y-auto rounded-t-3xl bg-papel p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-xl outline-none sm:animate-subir sm:rounded-3xl sm:p-6`}>
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 className="text-xl">{titulo}</h2>
           <button onClick={aoFechar} className="rounded-full p-1.5 text-cinza hover:bg-petala" aria-label="Fechar">
@@ -110,22 +110,44 @@ export function Selo({ children, className = '' }) {
   return <span className={`selo ${className}`}>{children}</span>
 }
 
-export function CartaoModelo({ modelo, para, arte, pers }) {
+const PERS_VITRINE = { nome: 'Helena', frase: 'para brindar a vida', data: '2026-05-10' }
+
+export function slidesDoModelo(modelo, artes = [], arte, limite = 4) {
+  if (modelo.fotos?.length) return modelo.fotos.slice(0, limite).map((f) => ({ foto: f, arte }))
+  const aceitas = artes.filter((a) => a.modelos_aceitos?.includes(modelo.id))
+  const ordem = [arte, ...aceitas.filter((a) => a.mais_vendida), ...aceitas].filter(Boolean)
+  const unicas = [...new Map(ordem.map((a) => [a.id, a])).values()].slice(0, limite)
+  return unicas.length ? unicas.map((a) => ({ arte: a })) : [{ arte: null }]
+}
+
+export function CartaoModelo({ modelo, para, arte, artes = [], pers = PERS_VITRINE }) {
+  const { promocoes } = useApp()
+  const { preco, cheio, promo } = precoDoModelo(modelo, promocoes)
+  const slides = slidesDoModelo(modelo, artes, arte)
+  const destino = (a) => para || `/modelo/${modelo.id}${a ? `?arte=${a.id}` : ''}`
   return (
-    <Link to={para || `/modelo/${modelo.id}`} className="group block">
-      <div className="arco relative aspect-[4/5] overflow-hidden bg-petala">
-        {modelo.fotos?.[0] ? (
-          <img src={modelo.fotos[0]} alt={modelo.nome} className="size-full object-cover transition duration-700 group-hover:scale-105" loading="lazy" />
-        ) : (
-          <Peca modelo={modelo} desenho={arte?.desenho} pers={pers} className="size-full px-4 pb-2 pt-8 transition duration-700 group-hover:scale-[1.04]" comSombra={false} ajustar />
-        )}
-        {modelo.mais_vendido && <span className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/90 px-3 py-0.5 font-mao text-lg text-rosa">mais pedida</span>}
+    <div className="group">
+      <div className="moldura aspect-[4/5]">
+        <Carrossel rotulo={`Fotos de ${modelo.nome}`} className="size-full" classeSlide="h-full">
+          {slides.map((s, i) => (
+            <Link key={i} to={destino(s.arte)} className="block size-full" tabIndex={i === 0 ? 0 : -1} aria-label={`${modelo.nome}${s.arte ? `, arte ${s.arte.nome}` : ''}`}>
+              {s.foto ? <img src={s.foto} alt="" className="zoom-suave size-full object-cover" loading="lazy" /> : <Peca modelo={modelo} desenho={s.arte?.desenho} pers={pers} className="zoom-suave size-full px-5 pb-6 pt-9" comSombra={false} ajustar />}
+            </Link>
+          ))}
+        </Carrossel>
+        <div className="pointer-events-none absolute left-3 right-3 top-[18%] z-10 flex flex-col items-start gap-1">
+          <SeloPromo promo={promo} />
+        </div>
+        {modelo.mais_vendido && !promo && <span className="pointer-events-none absolute left-1/2 top-[13%] z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-semibold text-rosa shadow-sm">Mais pedida</span>}
       </div>
-      <div className="px-1 pt-3 text-center">
-        <p className="titulo text-lg leading-snug text-grafite group-hover:text-rosa">{modelo.nome}</p>
-        <p className="mt-0.5 text-sm text-cinza">a partir de {moeda(modelo.preco_base)}</p>
-      </div>
-    </Link>
+      <Link to={destino(slides[0]?.arte)} className="block px-1 pt-3 text-center">
+        <p className="titulo text-[17px] leading-snug text-grafite transition-colors group-hover:text-rosa sm:text-lg">{modelo.nome}</p>
+        <div className="mt-1">
+          <Preco preco={preco} cheio={cheio} prefixo="a partir de" className="justify-center" />
+        </div>
+        {promo?.tipo === 'relampago' && promo.fim && <Contagem fim={promo.fim} compacto className="mt-1 text-xs font-semibold text-rosa" />}
+      </Link>
+    </div>
   )
 }
 

@@ -23,7 +23,7 @@ export default function Presentes() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <p className="font-mao text-2xl text-rosa">ideias para presente</p>
+      <p className="sobretitulo">Ideias para presente</p>
       <h1 className="text-3xl sm:text-4xl">{OCASIOES.find((o) => o.id === atual)?.nome}</h1>
       <p className="mt-1 text-cinza">{TEXTOS[atual]}</p>
       <div className="rolagem-fina mt-5 flex gap-2 overflow-x-auto pb-1">

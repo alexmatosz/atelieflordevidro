@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ImageDown, Trash2 } from 'lucide-react'
 import { useApp } from '../../lib/app'
 import { mascaraCep, moeda } from '../../lib/format'
 import { proximaFaixa } from '../../lib/regras'
 import { nomeCor } from '../../lib/elementos'
+import { promoAtiva } from '../../lib/promocoes'
 import { codigoPedido, enviarImagens, imagensDoPedido, linkWhats, montarMensagem, resumoValores } from '../../lib/whatsapp'
 import { AvisoArtesanal, Campo, Contador, Vazio } from '../../components/ui'
 import { IconeWhats } from '../../components/Layout'
@@ -18,10 +19,20 @@ const lerDados = () => {
 }
 
 export default function Carrinho() {
-  const { carrinho, alterarItem, removerItem, limparCarrinho, config, notificar } = useApp()
+  const { carrinho, alterarItem, removerItem, limparCarrinho, config, notificar, promocoes } = useApp()
   const [dados, setDados] = useState(() => ({ nome: '', cidade: '', cep: '', dataDesejada: '', observacoes: '', ...lerDados() }))
   const [enviado, setEnviado] = useState(null)
   const [preparando, setPreparando] = useState(false)
+  useEffect(() => {
+    carrinho.forEach((i) => {
+      if (!i.promocao) return
+      const p = promocoes.find((x) => x.id === i.promocao.id)
+      if (p && promoAtiva(p)) return
+      if (!promocoes.length && p === undefined) return
+      alterarItem(i.chave, { preco: i.preco_cheio || i.preco, promocao: null })
+      notificar(`A promoção ${i.promocao.titulo} terminou. O preço da peça voltou ao normal.`)
+    })
+  }, [promocoes])
   const v = resumoValores(carrinho, config)
   const prox = proximaFaixa(v.qtd, config.descontos)
 
@@ -59,7 +70,7 @@ export default function Carrinho() {
   if (enviado)
     return (
       <div className="mx-auto max-w-xl px-4 py-14 text-center">
-        <p className="font-mao text-4xl text-rosa">quase lá ♡</p>
+        <p className="sobretitulo">Quase lá</p>
         <h1 className="mt-2 text-3xl">Seu pedido {enviado.codigo} foi para o WhatsApp</h1>
         <p className="mt-3 text-cinza">Confira a mensagem na conversa com o ateliê e toque em enviar. Depois mande as imagens das artes para a pintora ver exatamente o que você escolheu.</p>
         <div className="mx-auto mt-8 flex max-w-xs flex-col gap-3">
@@ -80,7 +91,9 @@ export default function Carrinho() {
           </button>
         </div>
         <div className="mt-10 flex justify-center gap-3">
-          {enviado.itens.slice(0, 4).map((i) => i.mockup && <img key={i.chave} src={i.mockup} alt="" className="arco aspect-[4/5] w-20 bg-petala object-contain" />)}
+          {enviado.itens.slice(0, 4).map((i) => i.mockup && <div key={i.chave} className="moldura aspect-[4/5] w-20">
+                  <img src={i.mockup} alt="" className="size-full object-cover" />
+                </div>)}
         </div>
       </div>
     )
@@ -93,13 +106,13 @@ export default function Carrinho() {
     )
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl">Sua sacola</h1>
+    <div className="mx-auto max-w-6xl px-4 pb-10 pt-8">
+      <h1 className="text-[32px] sm:text-4xl">Sua sacola</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_400px]">
         <div className="space-y-4">
           {carrinho.map((i) => (
             <article key={i.chave} className="flex gap-4 border-b border-borda pb-4">
-              {i.mockup ? <img src={i.mockup} alt="" className="arco aspect-[4/5] w-24 shrink-0 bg-petala object-contain sm:w-28" /> : <div className="arco aspect-[4/5] w-24 shrink-0 bg-petala" />}
+              <div className="moldura aspect-[4/5] w-24 shrink-0 sm:w-28">{i.mockup && <img src={i.mockup} alt="" className="size-full object-cover" />}</div>
               <div className="flex min-w-0 flex-1 flex-col">
                 <h2 className="text-lg leading-snug">{i.descricao}</h2>
                 {i.kit_nome && <p className="text-sm text-folha">Parte do {i.kit_nome}</p>}
@@ -111,7 +124,11 @@ export default function Carrinho() {
                   {i.detalhes?.length > 0 && <p>Na arte: {i.detalhes.join(', ')}</p>}
                   {i.observacoes && <p>Observações: {i.observacoes}</p>}
                 </div>
-                <p className="mt-1 text-sm">{i.tipo === 'personalizada' ? `a partir de ${moeda(i.preco)} cada, valor final a combinar` : `${moeda(i.preco)} cada`}</p>
+                <p className="mt-1 flex flex-wrap items-baseline gap-x-2 text-sm">
+                  {i.promocao && <s className="text-cinza">{moeda(i.preco_cheio)}</s>}
+                  <span className={i.promocao ? 'font-semibold text-rosa-escuro' : ''}>{i.tipo === 'personalizada' ? `a partir de ${moeda(i.preco)} cada, valor final a combinar` : `${moeda(i.preco)} cada`}</span>
+                  {i.promocao && <span className="selo !bg-rosa !text-white">−{i.promocao.percentual}%</span>}
+                </p>
                 <div className="mt-auto flex items-center justify-between pt-2">
                   <Contador valor={i.quantidade} aoMudar={(q) => alterarItem(i.chave, { quantidade: q })} />
                   <button onClick={() => removerItem(i.chave)} className="rounded-full p-2 text-cinza hover:bg-blush/40 hover:text-rosa" aria-label="Tirar da sacola">
@@ -135,6 +152,12 @@ export default function Carrinho() {
               <p className="flex justify-between">
                 <span>Peças</span>
                 <span>{moeda(v.subtotal)}</span>
+              </p>
+            )}
+            {v.economia > 0 && (
+              <p className="flex justify-between text-rosa-escuro">
+                <span>Economia nas promoções</span>
+                <span>{moeda(v.economia)}</span>
               </p>
             )}
             {v.desconto > 0 && (
@@ -173,7 +196,7 @@ export default function Carrinho() {
           <button className="btn-whats w-full !py-3.5 text-base">
             <IconeWhats className="size-6" /> Finalizar pedido pelo WhatsApp
           </button>
-          <p className="text-center text-xs text-cinza">A mensagem já vai pronta com tudo o que você escolheu. O pagamento e o frete são combinados na conversa.</p>
+          <p className="text-center text-xs leading-relaxed text-cinza">A mensagem já vai pronta com tudo o que você escolheu. O pagamento e o frete são combinados na conversa. Ao finalizar, você concorda com as regras de <Link to="/trocas" className="underline">trocas</Link> e de <Link to="/privacidade" className="underline">privacidade</Link>.</p>
         </form>
       </div>
     </div>

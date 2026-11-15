@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom'
 import { AlertTriangle } from 'lucide-react'
 import { db } from '../../lib/db'
-import { useDados } from '../../lib/app'
+import { useApp, useDados } from '../../lib/app'
+import { promosVigentes } from '../../lib/promocoes'
 import { ETAPAS, moeda } from '../../lib/format'
 import { TituloPagina } from '../../components/Layout'
 import { Carregando } from '../../components/ui'
 
 export default function Painel() {
+  const { config, promocoes } = useApp()
   const [d] = useDados(async () => {
     const [modelos, pedidos, corporativos] = await Promise.all([db.listar('modelos'), db.listar('pedidos', { ordem: 'criado_em desc' }), db.listar('pedidos_corporativos', { filtro: { status: 'novo' } })])
     return { modelos, pedidos, corporativos }
@@ -22,12 +24,20 @@ export default function Painel() {
     { nome: 'Pedidos em produção', valor: abertos.length, para: '/admin/pedidos' },
     { nome: 'Vendido neste mês', valor: moeda(faturamento), para: '/admin/pedidos' },
     { nome: 'Peças no site', valor: d.modelos.filter((m) => m.disponivel).length, para: '/admin/modelos' },
-    { nome: 'Empresas aguardando', valor: d.corporativos.length, para: '/admin/corporativo' },
+    { nome: 'Promoções no ar', valor: promosVigentes(promocoes).length, para: '/admin/promocoes' },
   ]
 
   return (
     <div>
       <TituloPagina titulo="Visão geral" sub="Os pedidos chegam pelo WhatsApp. Registre cada um em Pedidos para acompanhar a pintura." />
+      {(!config.loja?.cnpj || !config.loja?.endereco) && (
+        <Link to="/admin/configuracoes" className="mb-4 flex items-start gap-3 rounded-2xl border border-ouro/50 bg-white p-4 text-sm">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-ouro-escuro" />
+          <span>
+            <b className="font-semibold">Falta o CNPJ (ou CPF) e o endereço da loja.</b> Quem vende pela internet precisa mostrar esses dados no site (Decreto nº 7.962/2013). Preencha em Configurações.
+          </span>
+        </Link>
+      )}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {cards.map((c) => (
           <Link key={c.nome} to={c.para} className="cartao p-4 transition hover:border-rosa/40">

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { db } from '../../lib/db'
 import { useApp, useDados, useWhats } from '../../lib/app'
@@ -10,8 +9,7 @@ import { AvisoArtesanal, Carregando, Vazio } from '../../components/ui'
 import { CamposPersonalizacao } from './Modelo'
 
 export default function Kit() {
-  const nav = useNavigate()
-  const { adicionarAoCarrinho, notificar } = useApp()
+  const { adicionarAoCarrinho, notificar, setAdicionado } = useApp()
   const [kitId, setKitId] = useState(null)
   const [arteId, setArteId] = useState(null)
   const [pers, setPers] = useState({})
@@ -45,8 +43,10 @@ export default function Kit() {
     setAdicionando(true)
     try {
       const { exportarPng } = await import('../../lib/konva')
+      let primeira = null
       for (const l of linhas) {
         const mockup = await exportarPng(l.modelo, arte.desenho, 'frente', pers, 480)
+        primeira = primeira || mockup
         adicionarAoCarrinho({
           tipo: 'kit',
           kit_id: kit.id,
@@ -59,10 +59,10 @@ export default function Kit() {
           quantidade: l.quantidade,
           preco: l.preco,
           prazo: l.modelo.prazo_producao_dias,
-        })
+        }, { mostrar: false })
       }
-      notificar('Kit na sacola.')
-      nav('/carrinho')
+      const pecas = linhas.reduce((s, l) => s + l.quantidade, 0)
+      setAdicionado({ descricao: `${kit.nome}, arte ${arte.nome}`, quantidade: pecas, preco: total / pecas, mockup: primeira, tipo: 'kit', quando: Date.now() })
     } catch (err) {
       notificar(err.message, 'erro')
     } finally {
@@ -72,7 +72,7 @@ export default function Kit() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      <p className="font-mao text-2xl text-rosa">tudo combinando</p>
+      <p className="sobretitulo">Tudo combinando</p>
       <h1 className="text-3xl sm:text-4xl">Monte um kit</h1>
       <p className="mt-1 text-cinza">Peças diferentes com a mesma arte, com desconto de kit.</p>
 

@@ -203,6 +203,24 @@ create table if not exists pedidos_corporativos (
   criado_em timestamptz not null default now()
 );
 
+create table if not exists promocoes (
+  id uuid primary key default gen_random_uuid(),
+  tipo text not null default 'semana' check (tipo in ('black', 'relampago', 'semana', 'outra')),
+  titulo text not null,
+  descricao text not null default '',
+  percentual numeric(5,2) not null check (percentual > 0 and percentual <= 90),
+  alvo text not null default 'tudo' check (alvo in ('tudo', 'categorias', 'modelos')),
+  categorias text[] not null default '{}',
+  modelos text[] not null default '{}',
+  inicio timestamptz,
+  fim timestamptz,
+  ativo boolean not null default true,
+  banner boolean not null default true,
+  criado_em timestamptz not null default now(),
+  check (fim is null or inicio is null or fim > inicio),
+  check (tipo <> 'relampago' or fim is not null)
+);
+
 create table if not exists datas_comemorativas (
   id uuid primary key default gen_random_uuid(),
   nome text not null,
@@ -219,10 +237,10 @@ create table if not exists configuracoes (
 );
 
 insert into configuracoes (chave, valor) values
-  ('loja', '{"nome":"Atelier Flor de Vidro","whatsapp":"554896273495","email":"","instagram":"atelieflordevidro","cidade":"Sombrio, SC","pix_chave":"","pix_nome":""}'),
+  ('loja', '{"nome":"Atelier Flor de Vidro","whatsapp":"554896273495","email":"","instagram":"atelieflordevidro","cidade":"Sombrio, SC","pix_chave":"","pix_nome":"","razao_social":"","cnpj":"","endereco":""}'),
   ('frete', '{"gratis_acima":350,"faixas":[{"regiao":"Mesma cidade","prefixos":[],"valor":15,"dias":2},{"regiao":"Sudeste","prefixos":["0","1","2","3"],"valor":25,"dias":5},{"regiao":"Sul","prefixos":["8","9"],"valor":32,"dias":7},{"regiao":"Centro-Oeste","prefixos":["7"],"valor":38,"dias":8},{"regiao":"Nordeste","prefixos":["4","5","6"],"valor":42,"dias":10}]}'),
   ('descontos', '{"faixas":[{"minimo":6,"percentual":5},{"minimo":12,"percentual":10},{"minimo":30,"percentual":15},{"minimo":50,"percentual":20}]}'),
-  ('textos', '{"sobre":"","aviso_artesanal":"Por ser pintura à mão, podem existir pequenas variações. Isso torna sua peça única.","trocas":""}'),
+  ('textos', '{"sobre":"","aviso_artesanal":"Por ser pintura à mão, podem existir pequenas variações. Isso torna sua peça única.","trocas":"","cuidados":"Lavar à mão, com esponja macia. Não usar no micro-ondas nem na lava-louças."}'),
   ('corporativo', '{"quantidade_minima":20}'),
   ('categorias', '{"lista":[{"id":"tacas","nome":"Taças","forma":"taca"},{"id":"canecas","nome":"Xícaras e canecas","forma":"caneca"},{"id":"copos","nome":"Copos","forma":"copo"},{"id":"garrafas","nome":"Garrafas","forma":"garrafa"},{"id":"pires","nome":"Pires e pratos","forma":"pires"}]}')
 on conflict (chave) do nothing;
@@ -238,6 +256,7 @@ alter table kits enable row level security;
 alter table galeria_clientes enable row level security;
 alter table pedidos_corporativos enable row level security;
 alter table datas_comemorativas enable row level security;
+alter table promocoes enable row level security;
 alter table configuracoes enable row level security;
 
 create policy "perfil proprio" on perfis for select using (id = auth.uid() or eh_admin());
@@ -255,6 +274,9 @@ create policy "elementos admin" on elementos_editor for all using (eh_admin()) w
 
 create policy "kits leitura" on kits for select using (ativo or eh_admin());
 create policy "kits admin" on kits for all using (eh_admin()) with check (eh_admin());
+
+create policy "promocoes leitura" on promocoes for select using (ativo or eh_admin());
+create policy "promocoes admin" on promocoes for all using (eh_admin()) with check (eh_admin());
 
 create policy "datas leitura" on datas_comemorativas for select using (true);
 create policy "datas admin" on datas_comemorativas for all using (eh_admin()) with check (eh_admin());

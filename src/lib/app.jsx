@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { CONFIG_PADRAO } from './seed'
 import { db, MODO_DEMO, supabase } from './db'
+import { comDesconto, promocaoDe } from './promocoes'
 
 const Ctx = createContext(null)
 
@@ -31,11 +32,25 @@ export function ProvedorApp({ children }) {
   const [carrinho, setCarrinho] = useState(() => lerJson(CHAVE_CARRINHO, []))
   const [contextoWhats, setContextoWhats] = useState('')
   const [aviso, setAviso] = useState(null)
+  const [promocoes, setPromocoes] = useState([])
+  const [adicionado, setAdicionado] = useState(null)
 
   const recarregarConfig = useCallback(() => db.config().then(setConfig).catch(() => {}), [])
   useEffect(() => {
     recarregarConfig()
   }, [recarregarConfig])
+
+  const recarregarPromocoes = useCallback(
+    () =>
+      db
+        .listar('promocoes')
+        .then(setPromocoes)
+        .catch(() => setPromocoes([])),
+    []
+  )
+  useEffect(() => {
+    recarregarPromocoes()
+  }, [recarregarPromocoes])
 
   useEffect(() => {
     gravarJson(CHAVE_CARRINHO, carrinho)
@@ -80,8 +95,10 @@ export function ProvedorApp({ children }) {
     setUsuario(null)
   }, [])
 
-  const adicionarAoCarrinho = useCallback((item) => {
-    setCarrinho((c) => [...c, { chave: Math.random().toString(36).slice(2), ...item }])
+  const adicionarAoCarrinho = useCallback((item, { mostrar = true } = {}) => {
+    const novo = { chave: Math.random().toString(36).slice(2), ...item }
+    setCarrinho((c) => [...c, novo])
+    if (mostrar) setAdicionado({ ...novo, quando: Date.now() })
   }, [])
   const alterarItem = useCallback((chave, patch) => setCarrinho((c) => c.map((i) => (i.chave === chave ? { ...i, ...patch } : i))), [])
   const removerItem = useCallback((chave) => setCarrinho((c) => c.filter((i) => i.chave !== chave)), [])
@@ -113,8 +130,12 @@ export function ProvedorApp({ children }) {
       setContextoWhats,
       aviso,
       notificar,
+      promocoes,
+      recarregarPromocoes,
+      adicionado,
+      setAdicionado,
     }),
-    [config, categorias, recarregarConfig, usuario, carregandoUsuario, entrarAdmin, sair, carrinho, adicionarAoCarrinho, alterarItem, removerItem, limparCarrinho, contextoWhats, aviso, notificar]
+    [config, categorias, recarregarConfig, usuario, carregandoUsuario, entrarAdmin, sair, carrinho, adicionarAoCarrinho, alterarItem, removerItem, limparCarrinho, contextoWhats, aviso, notificar, promocoes, recarregarPromocoes, adicionado]
   )
 
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
@@ -149,4 +170,25 @@ export function useWhats(texto) {
     setContextoWhats(texto || '')
     return () => setContextoWhats('')
   }, [texto, setContextoWhats])
+}
+
+export function useAgora(intervalo = 1000, ligado = true) {
+  const [agora, setAgora] = useState(() => Date.now())
+  useEffect(() => {
+    if (!ligado) return
+    const t = setInterval(() => setAgora(Date.now()), intervalo)
+    return () => clearInterval(t)
+  }, [intervalo, ligado])
+  return agora
+}
+
+export function usePreco(modelo, acrescimo = 0) {
+  const { promocoes } = useApp()
+  return precoDoModelo(modelo, promocoes, acrescimo)
+}
+
+export function precoDoModelo(modelo, promocoes, acrescimo = 0) {
+  const cheio = Number(modelo?.preco_base || 0) + Number(acrescimo || 0)
+  const promo = promocaoDe(modelo, promocoes)
+  return { cheio, preco: comDesconto(cheio, promo), promo }
 }

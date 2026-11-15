@@ -61,7 +61,7 @@ export default function Corporativo() {
         </div>
         {enviado ? (
           <div className="cartao flex flex-col items-center justify-center p-8 text-center">
-            <p className="font-mao text-3xl text-folha">recebido!</p>
+            <p className="sobretitulo !text-folha">Recebido</p>
             <p className="titulo text-2xl">Vamos preparar seu orçamento</p>
             <p className="mt-2 text-sm text-cinza">Confira a mensagem no WhatsApp e toque em enviar. Se tiver o logo, mande na mesma conversa.</p>
           </div>

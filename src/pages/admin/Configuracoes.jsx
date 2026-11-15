@@ -76,6 +76,20 @@ export default function Configuracoes() {
               <input className="campo" value={c.loja.pix_nome || ''} onChange={set('loja', 'pix_nome')} />
             </Campo>
           </div>
+          <div className="space-y-3 rounded-2xl bg-petala/60 p-4">
+            <p className="text-sm text-ameixa">Dados obrigatórios para quem vende pela internet (Decreto nº 7.962/2013, art. 2º). Aparecem no rodapé do site e nas páginas de trocas e privacidade.</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Campo rotulo="Nome empresarial ou nome completo">
+                <input className="campo" value={c.loja.razao_social || ''} onChange={set('loja', 'razao_social')} placeholder="Como está no CNPJ ou no MEI" />
+              </Campo>
+              <Campo rotulo="CNPJ ou CPF">
+                <input className="campo" inputMode="numeric" value={c.loja.cnpj || ''} onChange={set('loja', 'cnpj')} />
+              </Campo>
+              <Campo rotulo="Endereço" className="sm:col-span-2" dica="Rua, número, bairro, cidade e estado.">
+                <input className="campo" value={c.loja.endereco || ''} onChange={set('loja', 'endereco')} />
+              </Campo>
+            </div>
+          </div>
         </Secao>
 
         <Secao titulo="Descontos por quantidade" sub="Somam todas as peças do carrinho. Ótimo para lembrancinhas." aoSalvar={salvar('descontos')}>

@@ -247,6 +247,9 @@ export const CONFIG_PADRAO = {
     cidade: 'Sombrio, SC',
     pix_chave: '',
     pix_nome: '',
+    razao_social: '',
+    cnpj: '',
+    endereco: '',
   },
   frete: {
     gratis_acima: 350,
@@ -270,7 +273,7 @@ export const CONFIG_PADRAO = {
       'Cada peça sai do ateliê pintada à mão, uma de cada vez. Nada de adesivo ou impressão: é tinta, pincel e muito carinho. Por isso nenhuma peça é igual à outra.',
     aviso_artesanal: 'Por ser pintura à mão, podem existir pequenas variações. Isso torna sua peça única.',
     trocas:
-      'Se a peça chegar danificada, mande uma foto pelo WhatsApp em até 7 dias que pintamos outra. Peças personalizadas não têm troca por arrependimento.',
+      'Você pode desistir em até 7 dias do recebimento. Se a peça chegar quebrada ou com defeito, mande uma foto pelo WhatsApp que pintamos outra ou devolvemos o valor.',
     cuidados: 'Lavar à mão, com esponja macia. Não usar no micro-ondas nem na lava-louças.',
   },
   corporativo: { quantidade_minima: 20 },

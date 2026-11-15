@@ -15,6 +15,8 @@ import Galeria from './pages/loja/Galeria'
 import Corporativo from './pages/loja/Corporativo'
 import Datas from './pages/loja/Datas'
 import Sobre from './pages/loja/Sobre'
+import Ofertas from './pages/loja/Ofertas'
+import { Privacidade, Trocas } from './pages/loja/Legal'
 const Painel = lazy(() => import('./pages/admin/Painel'))
 const Modelos = lazy(() => import('./pages/admin/Modelos'))
 const ModeloForm = lazy(() => import('./pages/admin/ModeloForm'))
@@ -27,9 +29,22 @@ const GaleriaAdmin = lazy(() => import('./pages/admin/GaleriaAdmin'))
 const CorporativoAdmin = lazy(() => import('./pages/admin/CorporativoAdmin'))
 const DatasAdmin = lazy(() => import('./pages/admin/DatasAdmin'))
 const Configuracoes = lazy(() => import('./pages/admin/Configuracoes'))
+const Promocoes = lazy(() => import('./pages/admin/Promocoes'))
 
 const LayoutAdmin = lazy(() => import('./components/Layout').then((m) => ({ default: m.LayoutAdmin })))
 const CrieSuaArte = lazy(() => import('./pages/loja/CrieSuaArte'))
+
+document.addEventListener(
+  'pointerdown',
+  (e) => {
+    const b = e.target.closest?.('.btn, [class*="btn-"]')
+    if (!b) return
+    const r = b.getBoundingClientRect()
+    b.style.setProperty('--x', `${e.clientX - r.left}px`)
+    b.style.setProperty('--y', `${e.clientY - r.top}px`)
+  },
+  { passive: true }
+)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -51,6 +66,9 @@ createRoot(document.getElementById('root')).render(
               <Route path="corporativo" element={<Corporativo />} />
               <Route path="datas" element={<Datas />} />
               <Route path="sobre" element={<Sobre />} />
+              <Route path="ofertas" element={<Ofertas />} />
+              <Route path="trocas" element={<Trocas />} />
+              <Route path="privacidade" element={<Privacidade />} />
               <Route path="*" element={<Inicio />} />
             </Route>
             <Route path="admin" element={<LayoutAdmin />}>
@@ -62,6 +80,7 @@ createRoot(document.getElementById('root')).render(
               <Route path="elementos" element={<Elementos />} />
               <Route path="pedidos" element={<Pedidos />} />
               <Route path="kits" element={<Kits />} />
+              <Route path="promocoes" element={<Promocoes />} />
               <Route path="galeria" element={<GaleriaAdmin />} />
               <Route path="corporativo" element={<CorporativoAdmin />} />
               <Route path="datas" element={<DatasAdmin />} />

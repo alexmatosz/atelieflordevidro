@@ -31,6 +31,23 @@ Código: https://github.com/alexmatosz/atelieflordevidro
 - [x] No painel, "Registrar pedido": cola a mensagem do WhatsApp e o pedido entra no kanban
 - [x] Pedidos de empresas também saem pelo WhatsApp
 
+## Mudanças de 15/11/2026, segunda rodada
+
+- [x] Letras novas e fáceis de ler: Young Serif nos títulos e Figtree no texto (as cursivas ficam só para a pintura na peça)
+- [x] Botões com efeito ao tocar, sacola que pula quando entra peça, menu lateral e janela "adicionada à sacola" com animação
+- [x] Seções aparecem suavemente ao rolar a página (desliga sozinho para quem prefere menos movimento)
+- [x] Moldura em arco com filete dourado nas peças da página inicial, do catálogo e do produto
+- [x] Carrossel de fotos no cartão do produto (antes de entrar) e na página do produto, com miniaturas
+- [x] Promoções pelo painel: Black Friday, oferta relâmpago (com contagem regressiva) e desconto da semana, por loja toda, categoria ou peça
+- [x] Página /ofertas, banner na página inicial e faixa de avisos no topo
+- [x] Preço riscado e selo de desconto nas peças, na sacola e na mensagem do WhatsApp
+- [x] Busca, ordenação (mais vendidas, menor e maior preço), trilha de navegação e "você também pode gostar"
+- [x] Celular: barra fixa embaixo (Início, Peças, Ofertas, Criar, Sacola) e botão "Colocar na sacola" fixo na página do produto
+- [x] Páginas de trocas e devoluções (CDC arts. 26 e 49) e de privacidade (LGPD)
+- [x] Rodapé com nome empresarial, CNPJ e endereço (Decreto nº 7.962/2013), editáveis em Configurações
+- [ ] Preencher CNPJ/CPF e endereço no painel (o painel avisa enquanto faltar)
+- [ ] Revisar com advogado o texto de trocas para peças personalizadas e a política de privacidade
+
 ## Como o site funciona hoje
 
 Sem as chaves do Supabase, o site roda em **modo demonstração**: tudo fica salvo só no navegador

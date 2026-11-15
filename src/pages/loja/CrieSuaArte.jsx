@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ShoppingBag } from 'lucide-react'
 import { db } from '../../lib/db'
 import { useApp, useDados, useWhats } from '../../lib/app'
@@ -33,7 +33,6 @@ function descreverDesenho(desenho) {
 export default function CrieSuaArte() {
   const { modeloId } = useParams()
   const [busca] = useSearchParams()
-  const nav = useNavigate()
   const { adicionarAoCarrinho, notificar } = useApp()
   const [desenho, setDesenho] = useState(null)
   const [f, setF] = useState({ referencias: [], observacoes: '', quantidade: 1 })
@@ -71,7 +70,7 @@ export default function CrieSuaArte() {
   if (!modelo)
     return (
       <div className="mx-auto max-w-6xl px-4 py-10">
-        <p className="font-mao text-3xl text-rosa">crie a sua arte</p>
+        <p className="sobretitulo">Crie a sua arte</p>
         <h1 className="text-4xl">Em qual peça vamos pintar?</h1>
         <p className="mt-2 max-w-xl text-cinza">Escolha a peça. No editor você monta o desenho com flores, frutinhas, lacinhos e o nome que quiser.</p>
         <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
@@ -108,8 +107,6 @@ export default function CrieSuaArte() {
       } catch {
         void 0
       }
-      notificar('Sua arte foi para a sacola.')
-      nav('/carrinho')
     } catch (err) {
       notificar(err.message, 'erro')
     } finally {

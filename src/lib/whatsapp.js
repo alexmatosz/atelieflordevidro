@@ -13,7 +13,8 @@ export function resumoValores(carrinho, config) {
   const pct = percentualDesconto(qtd, config?.descontos)
   const desconto = Math.round(subtotal * pct) / 100
   const aCombinar = carrinho.some((i) => i.tipo === 'personalizada')
-  return { subtotal, qtd, pct, desconto, total: subtotal - desconto, aCombinar }
+  const economia = comPreco.reduce((s, i) => s + Math.max(0, Number(i.preco_cheio || i.preco) - i.preco) * i.quantidade, 0)
+  return { subtotal, qtd, pct, desconto, total: subtotal - desconto, aCombinar, economia }
 }
 
 export function montarMensagem(carrinho, dados, config, codigo) {
@@ -33,6 +34,7 @@ export function montarMensagem(carrinho, dados, config, codigo) {
     if (i.referencias?.length) linhas.push(`Tenho ${i.referencias.length} ${i.referencias.length === 1 ? 'imagem' : 'imagens'} de referência para enviar`)
     if (i.tipo === 'personalizada') linhas.push(`Valor: a partir de ${moeda(i.preco)} por peça, a combinar`)
     else linhas.push(`Valor: ${i.quantidade} × ${moeda(i.preco)} = ${moeda(i.preco * i.quantidade)}`)
+    if (i.promocao) linhas.push(`Promoção: ${i.promocao.titulo} (−${i.promocao.percentual}%, de ${moeda(i.preco_cheio)} por ${moeda(i.preco)})`)
   })
   linhas.push('')
   if (v.desconto > 0) linhas.push(`Desconto de ${v.pct}% por quantidade: −${moeda(v.desconto)}`)
