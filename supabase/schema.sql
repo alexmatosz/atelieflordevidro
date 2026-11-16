@@ -259,43 +259,68 @@ alter table datas_comemorativas enable row level security;
 alter table promocoes enable row level security;
 alter table configuracoes enable row level security;
 
+drop policy if exists "perfil proprio" on perfis;
 create policy "perfil proprio" on perfis for select using (id = auth.uid() or eh_admin());
+drop policy if exists "perfil editar" on perfis;
 create policy "perfil editar" on perfis for update using (id = auth.uid() or eh_admin())
   with check (eh_admin() or (id = auth.uid() and papel = 'cliente'));
 
+drop policy if exists "modelos leitura" on modelos;
 create policy "modelos leitura" on modelos for select using (disponivel or eh_admin());
+drop policy if exists "modelos admin" on modelos;
 create policy "modelos admin" on modelos for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "artes leitura" on artes;
 create policy "artes leitura" on artes for select using (ativo or eh_admin());
+drop policy if exists "artes admin" on artes;
 create policy "artes admin" on artes for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "elementos leitura" on elementos_editor;
 create policy "elementos leitura" on elementos_editor for select using (ativo or eh_admin());
+drop policy if exists "elementos admin" on elementos_editor;
 create policy "elementos admin" on elementos_editor for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "kits leitura" on kits;
 create policy "kits leitura" on kits for select using (ativo or eh_admin());
+drop policy if exists "kits admin" on kits;
 create policy "kits admin" on kits for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "promocoes leitura" on promocoes;
 create policy "promocoes leitura" on promocoes for select using (ativo or eh_admin());
+drop policy if exists "promocoes admin" on promocoes;
 create policy "promocoes admin" on promocoes for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "datas leitura" on datas_comemorativas;
 create policy "datas leitura" on datas_comemorativas for select using (true);
+drop policy if exists "datas admin" on datas_comemorativas;
 create policy "datas admin" on datas_comemorativas for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "config leitura" on configuracoes;
 create policy "config leitura" on configuracoes for select using (true);
+drop policy if exists "config admin" on configuracoes;
 create policy "config admin" on configuracoes for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "galeria leitura" on galeria_clientes;
 create policy "galeria leitura" on galeria_clientes for select using ((publicado and autorizado) or eh_admin());
+drop policy if exists "galeria admin" on galeria_clientes;
 create policy "galeria admin" on galeria_clientes for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "solicitacao criar" on solicitacoes_analise;
 create policy "solicitacao criar" on solicitacoes_analise for insert
   with check (cliente_id = auth.uid() and status = 'em_analise' and preco_unitario is null and prazo_dias is null);
+drop policy if exists "solicitacao ver" on solicitacoes_analise;
 create policy "solicitacao ver" on solicitacoes_analise for select using (cliente_id = auth.uid() or eh_admin());
+drop policy if exists "solicitacao admin" on solicitacoes_analise;
 create policy "solicitacao admin" on solicitacoes_analise for update using (eh_admin()) with check (eh_admin());
+drop policy if exists "pedido ver" on pedidos;
 create policy "pedido ver" on pedidos for select using (cliente_id = auth.uid() or eh_admin());
+drop policy if exists "pedido admin" on pedidos;
 create policy "pedido admin" on pedidos for all using (eh_admin()) with check (eh_admin());
 
+drop policy if exists "itens ver" on itens_pedido;
 create policy "itens ver" on itens_pedido for select
   using (eh_admin() or exists (select 1 from pedidos p where p.id = pedido_id and p.cliente_id = auth.uid()));
+drop policy if exists "itens admin" on itens_pedido;
 create policy "itens admin" on itens_pedido for all using (eh_admin()) with check (eh_admin());
 
 create or replace function desconto_quantidade(qtd integer) returns numeric
@@ -436,15 +461,21 @@ begin
 end;
 $$;
 
+drop policy if exists "corporativo criar" on pedidos_corporativos;
 create policy "corporativo criar" on pedidos_corporativos for insert with check (status = 'novo');
+drop policy if exists "corporativo admin" on pedidos_corporativos;
 create policy "corporativo admin" on pedidos_corporativos for all using (eh_admin()) with check (eh_admin());
 
 insert into storage.buckets (id, name, public) values ('imagens', 'imagens', true)
   on conflict (id) do nothing;
 
+drop policy if exists "imagens leitura" on storage.objects;
 create policy "imagens leitura" on storage.objects for select using (bucket_id = 'imagens');
+drop policy if exists "imagens envio" on storage.objects;
 create policy "imagens envio" on storage.objects for insert
   with check (bucket_id = 'imagens' and (eh_admin() or (auth.role() = 'authenticated' and (storage.foldername(name))[1] = 'clientes')));
+drop policy if exists "imagens corporativo" on storage.objects;
 create policy "imagens corporativo" on storage.objects for insert
   with check (bucket_id = 'imagens' and (storage.foldername(name))[1] = 'corporativo');
+drop policy if exists "imagens admin" on storage.objects;
 create policy "imagens admin" on storage.objects for all using (bucket_id = 'imagens' and eh_admin());

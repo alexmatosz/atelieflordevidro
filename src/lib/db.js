@@ -11,7 +11,7 @@ let clientePromise = null
 export function supabase() {
   if (MODO_DEMO) return null
   if (!clientePromise) {
-    clientePromise = import('@supabase/supabase-js').then(({ createClient }) => createClient(URL, CHAVE))
+    clientePromise = import('@supabase/supabase-js').then(({ createClient }) => createClient(URL, CHAVE, { auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } }))
   }
   return clientePromise
 }

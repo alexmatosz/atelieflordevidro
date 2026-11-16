@@ -383,8 +383,18 @@ const LINKS_ADMIN = [
 ]
 
 function EntrarAdmin() {
-  const { entrarAdmin, usuario, sair, notificar } = useApp()
+  const { entrarAdmin, entrarGoogle, usuario, sair, notificar } = useApp()
   const [f, setF] = useState({ email: '', senha: '' })
+  const [comSenha, setComSenha] = useState(false)
+  const google = async () => {
+    setEnviando(true)
+    try {
+      await entrarGoogle()
+    } catch (err) {
+      notificar(err.message, 'erro')
+      setEnviando(false)
+    }
+  }
   const [enviando, setEnviando] = useState(false)
   const enviar = async (e) => {
     e.preventDefault()
@@ -403,16 +413,32 @@ function EntrarAdmin() {
         <img src={`${BASE}logo.webp`} alt="Atelier Flor de Vidro" className="mx-auto size-40 rounded-full" />
         <h1 className="text-2xl">Área do ateliê</h1>
         {usuario && (
-          <p className="text-sm text-rosa-escuro">
-            Esta conta não tem acesso ao painel.{' '}
-            <button type="button" className="underline" onClick={sair}>
-              Sair
+          <p className="rounded-xl bg-blush/30 px-3 py-2 text-sm text-rosa-escuro">
+            A conta {usuario.email} não tem acesso ao painel.{' '}
+            <button type="button" className="font-semibold underline" onClick={sair}>
+              Entrar com outra conta
             </button>
           </p>
         )}
         {MODO_DEMO ? (
           <p className="text-sm text-cinza">Versão de demonstração: o painel abre sem senha e os dados ficam só neste navegador.</p>
         ) : (
+          <button type="button" onClick={google} disabled={enviando} className="btn w-full border border-borda bg-white !py-3 text-grafite hover:bg-petala/40">
+            <svg viewBox="0 0 48 48" className="size-5" aria-hidden="true">
+              <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+              <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+              <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+              <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+            </svg>
+            {enviando ? 'Abrindo o Google…' : 'Entrar com Google'}
+          </button>
+        )}
+        {!MODO_DEMO && !comSenha && (
+          <button type="button" className="text-sm text-cinza underline" onClick={() => setComSenha(true)}>
+            Entrar com e-mail e senha
+          </button>
+        )}
+        {!MODO_DEMO && comSenha && (
           <div className="space-y-3 text-left">
             <Campo rotulo="E-mail">
               <input className="campo" type="email" required autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
@@ -422,9 +448,11 @@ function EntrarAdmin() {
             </Campo>
           </div>
         )}
-        <button className="btn-primario w-full" disabled={enviando}>
-          {enviando ? 'Entrando…' : 'Entrar no painel'}
-        </button>
+        {(MODO_DEMO || comSenha) && (
+          <button className="btn-primario w-full" disabled={enviando}>
+            {enviando ? 'Entrando…' : 'Entrar no painel'}
+          </button>
+        )}
         <Link to="/" className="block text-sm text-cinza hover:text-rosa">
           Voltar para a loja
         </Link>

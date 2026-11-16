@@ -7,6 +7,7 @@ const Ctx = createContext(null)
 
 const CHAVE_ADMIN = 'afv:usuario'
 const CHAVE_CARRINHO = 'afv:carrinho'
+const CHAVE_VOLTAR = 'afv:voltar-admin'
 
 function lerJson(chave, padrao) {
   try {
@@ -68,6 +69,13 @@ export function ProvedorApp({ children }) {
       }
       const { data } = await c.auth.getSession()
       await carregarPerfil(data.session)
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('code') || params.has('error')) window.history.replaceState(null, '', window.location.pathname + window.location.hash)
+      if (localStorage.getItem(CHAVE_VOLTAR)) {
+        localStorage.removeItem(CHAVE_VOLTAR)
+        if (params.has('error')) setTimeout(() => notificar(params.get('error_description') || 'Não foi possível entrar com o Google.', 'erro'), 300)
+        window.location.hash = '#/admin'
+      }
       if (!cancelado) setCarregandoUsuario(false)
       assinatura = c.auth.onAuthStateChange((_e, sessao) => carregarPerfil(sessao)).data.subscription
     })
@@ -87,6 +95,16 @@ export function ProvedorApp({ children }) {
     const c = await supabase()
     const { error } = await c.auth.signInWithPassword({ email, password: senha })
     if (error) throw new Error(error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos.' : error.message)
+  }, [])
+
+  const entrarGoogle = useCallback(async () => {
+    const c = await supabase()
+    localStorage.setItem(CHAVE_VOLTAR, '1')
+    const { error } = await c.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`, queryParams: { prompt: 'select_account' } } })
+    if (error) {
+      localStorage.removeItem(CHAVE_VOLTAR)
+      throw new Error(error.message)
+    }
   }, [])
 
   const sair = useCallback(async () => {
@@ -120,6 +138,7 @@ export function ProvedorApp({ children }) {
       carregandoUsuario,
       ehAdmin: usuario?.papel === 'admin',
       entrarAdmin,
+      entrarGoogle,
       sair,
       carrinho,
       adicionarAoCarrinho,
@@ -135,7 +154,7 @@ export function ProvedorApp({ children }) {
       adicionado,
       setAdicionado,
     }),
-    [config, categorias, recarregarConfig, usuario, carregandoUsuario, entrarAdmin, sair, carrinho, adicionarAoCarrinho, alterarItem, removerItem, limparCarrinho, contextoWhats, aviso, notificar, promocoes, recarregarPromocoes, adicionado]
+    [config, categorias, recarregarConfig, usuario, carregandoUsuario, entrarAdmin, entrarGoogle, sair, carrinho, adicionarAoCarrinho, alterarItem, removerItem, limparCarrinho, contextoWhats, aviso, notificar, promocoes, recarregarPromocoes, adicionado]
   )
 
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>

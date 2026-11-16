@@ -3,6 +3,7 @@ import { Brush, Camera, ChevronRight, PenLine, Truck } from 'lucide-react'
 import { db } from '../../lib/db'
 import { precoDoModelo, useAgora, useApp, useDados } from '../../lib/app'
 import { promosVigentes, promoVale } from '../../lib/promocoes'
+import { slug } from '../../lib/format'
 import Peca from '../../components/Peca'
 import { CartaoModelo } from '../../components/ui'
 import { Carrossel, Preco, Revelar, SeloPromo } from '../../components/vitrine'
@@ -63,8 +64,8 @@ export default function Inicio() {
   })
   const modelos = d?.modelos || []
   const artes = d?.artes || []
-  const arte = (id) => artes.find((a) => a.id === id) || artes[0]
-  const modelo = (id, forma) => modelos.find((m) => m.id === id) || modelos.find((m) => m.forma === forma)
+  const arte = (id) => artes.find((a) => a.id === id || slug(a.nome) === id) || artes[0]
+  const modelo = (id, forma) => modelos.find((m) => m.id === id || m.slug === id) || modelos.find((m) => m.forma === forma)
   const vitrine = [
     { m: modelo('taca-bordeaux', 'taca'), a: arte('girassois') },
     { m: modelo('caneca-300', 'caneca'), a: arte('tulipas-rose') },
